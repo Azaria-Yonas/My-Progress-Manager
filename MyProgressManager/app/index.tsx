@@ -13,7 +13,7 @@ export default function Index() {
 
     try {
 
-      const response = await fetch("http://10.251.251.153:5000/", {
+      const response = await fetch("https://my-progress-manager.onrender.com", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
