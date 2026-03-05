@@ -19,7 +19,7 @@ export default function GetStarted() {
   const { theme } = useThemeMode();
   const { setLoading } = useLoading();
   const [authVisible, setAuthVisible] = useState(false);
-
+ 
   const styles = createLoginSignupStyles(theme);
 
   useEffect(() => {
@@ -53,8 +53,8 @@ Add goals, log your progress, and watch your routines transform over time. Your 
 Before you begin, please note: {"\n"}
 - Do NOT use your real email or real password{"\n"}
 - Create a simple login using any made-up email{"\n"}
-- Your password can be short and easy{"\n"}
-- The email does NOT need to exist in real life{"\n"}
+- Choose a short and memorable password{"\n"}
+- Your email does NOT need to really exist{"\n"}
 This keeps your information safe while allowing you to explore the app freely.
 
 Getting started is easy:{"\n"}

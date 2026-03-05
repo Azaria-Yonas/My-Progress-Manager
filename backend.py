@@ -5,10 +5,10 @@ from flask import Flask, jsonify
 
 
 URL = os.getenv("supabaseurl")
-API_KEY= os.getenv("supabasekey")
+ANON_KEY= os.getenv("supabasekey")
 
-if URL and API_KEY is not None:
-    supabase: Client = create_client(URL, API_KEY)
+if URL and ANON_KEY is not None:
+    supabase: Client = create_client(URL, ANON_KEY)
 else:
     raise Exception("Connection Unsuccessfull: API Key or URL Missing" )
 
@@ -18,19 +18,16 @@ else:
 
 app = Flask(__name__)
 
-@app.route("/tasks")
+@app.route("/data")
 def get_tasks():
     response = (
-        supabase.table("tasks")
+        supabase.table("Test") # doesn't work for the tasks table
         .select("*")
-        .eq("user_id", "3f027e9f-2437-4f5e-90ed-c6423ffb4186")
         .execute()
     )
 
     data = response.data or []
     count = response.count or 0
-
-    print(response)
 
     return jsonify({"data": data, "count": count})
 
@@ -41,9 +38,6 @@ def getT1():
     return render_template('index.html')
 
 
-@app.route('/getTable')
-def getTable():
-    return "http://127.0.0.1:5000/tasks"
 
 
 if __name__ == "__main__":
