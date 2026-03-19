@@ -1,22 +1,18 @@
-import os
-from supabase import create_client, Client
-
-
-URL = os.getenv("supabaseurl")
-ANON_KEY= os.getenv("supabasekey")
-
-
-def create_Client():
-    if URL and ANON_KEY is not None:
-        supabase: Client = create_client(URL, ANON_KEY)
-    else:
-        raise Exception("Connection Unsuccessfull: API Key or URL Missing" )
-    return supabase
+from supabase import create_client
+from config import SUPABASE_KEY, SUPABASE_URL
 
 
 
-supabase = create_Client()
+def new_client():
+    if not SUPABASE_KEY:
+        raise Exception("Key is missing!!!")
+    if not SUPABASE_URL:
+        raise Exception("URL is missing!!!")
+
+    return create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
-def login(supabase: Client):
-    supabase.auth.sign_in_with_password
+
+
+
+
