@@ -52,3 +52,12 @@ Backend/node_modules/
 
 
 .ini
+
+.env
+.env.local
+.env.*.local
+*.log
+*.pid
+*.seed
+*.pid.lock
+**/.env
