@@ -4,7 +4,7 @@ from supabase_client import new_client
 
 supabase = new_client()
 
-
+ 
 app = Flask(__name__)
 
 
