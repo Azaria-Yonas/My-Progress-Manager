@@ -1,5 +1,11 @@
 from flask import Flask, request
+from supabase import create_client
+import os
 
+url = os.getenv("supabaseurl") or ""
+key = os.getenv("supabasekey") or ""
+
+supabase = create_client(url, key)
 
 
 app = Flask(__name__)
@@ -11,6 +17,23 @@ def addnumber():
     a = data["a"]
     b = data["b"]
     return {"result": a + b}
+
+
+
+@app.route("/login", methods=["POST"])
+def login():
+
+    data = request.json
+
+    response = supabase.auth.sign_in_with_password(
+        {
+            "email": data["email"],
+            "password": data["password"],
+        }
+    )
+
+    return response.model_dump()
+
 
 
 if "__main__" == __name__:
