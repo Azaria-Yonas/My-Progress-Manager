@@ -1,35 +1,37 @@
 from flask import Flask, request
-from supabase_client import new_client
+from clients.supabase_client import new_client      # Not Needed
+from auth.login import login
+from auth.signup import signup
 
 
-supabase = new_client()
+
+
+
+
 
  
 app = Flask(__name__)
 
-
-@app.route("/", methods=["POST"])
-def addnumber():
-    data = request.json
-    a = data["a"]
-    b = data["b"]
-    return {"result": a + b}
+@app.route("/login", methods=["POST"])              # Login 
+def login_route():
+    return login()
 
 
+@app.route("/sigup", methods=["POST"])              # SignUp
+def signup_route_route():
+    return signup()
 
-@app.route("/login", methods=["POST"])
-def login():
-    data = request.json
 
-    response = supabase.auth.sign_in_with_password(
-        {
-            "email": data["email"],
-            "password": data["password"],
-        }
-    )
 
-    return response.model_dump()
 
+
+
+
+
+
+@app.route("/")
+def home():
+    return "Backend is running"
 
 
 if "__main__" == __name__:
