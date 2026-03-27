@@ -1,10 +1,11 @@
 from flask import request, jsonify
-from supabase import Client
+from supabase_client import new_client
 
 
 
-def signup(supabase: Client):
+def signup():
 
+    supabase = new_client()
     data = request.json
     try:
         response = supabase.auth.sign_up(
