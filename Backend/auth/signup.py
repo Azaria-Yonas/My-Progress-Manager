@@ -1,5 +1,5 @@
 from flask import request, jsonify
-from supabase_client import new_client
+from clients.supabase_client import new_client
 
 
 
