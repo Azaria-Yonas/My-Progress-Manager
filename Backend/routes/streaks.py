@@ -1,5 +1,6 @@
+# routes/streaks.py
+from flask import jsonify
 from clients.psycopg_connect import psycopg_connect
-
 
 
 
@@ -23,4 +24,4 @@ def fecth_streaks(user_id):
                     "streak_count": row[3],
                 })
 
-    return results
+    return jsonify(results)
