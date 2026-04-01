@@ -1,5 +1,6 @@
+# routes/tasks.py
+from flask import jsonify
 from clients.psycopg_connect import psycopg_connect
-
 
 
 
@@ -8,7 +9,7 @@ def fecth_tasks(user_id):
     with psycopg_connect() as conn:
         with conn.cursor() as curr:
             curr.execute("""
-                SELECT title, description, due_date, color FROM mydb.tasks
+                SELECT title, description, due_date, color, id, order_index, is_compeleted FROM mydb.tasks
                 WHERE user_id = %s
                 ORDER BY order_index
             """,
@@ -22,6 +23,9 @@ def fecth_tasks(user_id):
                     "description": row[1],
                     "due_date": row[2],
                     "color": row[3],
+                    "id" : row[4],
+                    "order_index": row[5],
+                    "is_completed": row[6]
                 })
 
-    return results
+    return jsonify(results)
