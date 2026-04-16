@@ -9,14 +9,15 @@ import TaskItem, { Task } from "../../components/TaskItem";
 import AnimatedHeader from "../../components/AnimatedHeader";
 import { useThemeMode } from "../../context/ThemeContext";
 import { useLoading } from "../../context/LoadingContext";
-import { useAuth } from "../../context/AuthProvider";
 import { useRouter } from "expo-router";
-import { supabase } from "../../lib/supabaseClient";
 import BottomBar from "../../components/BottomBar";
 import { useTypography } from "../../context/TypographyContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const API = "https://my-progress-manager.onrender.com";
+const TOKEN_KEY = "access_token";
 
 export default function Home() {
-  const { user } = useAuth();
   const router = useRouter();
   const { fontSize, fontWeight } = useTypography();
   const { theme } = useThemeMode();
@@ -35,28 +36,47 @@ export default function Home() {
 
   const scrollY = useRef(new Animated.Value(0)).current;
 
-  useEffect(() => {
-    if (!user) router.replace("/(tabs)/loginSignup");
-  }, [user]);
+  const apiFetch = async (endpoint: string, options: any = {}) => {
+    const token = await AsyncStorage.getItem(TOKEN_KEY);
 
+    if (!token) {
+      router.replace("/(tabs)/loginSignup");
+      return;
+    }
+
+    const res = await fetch(`${API}${endpoint}`, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+        ...(options.headers || {}),
+      },
+    });
+
+    if (res.status === 401) {
+      await AsyncStorage.removeItem(TOKEN_KEY);
+      router.replace("/(tabs)/loginSignup");
+      return;
+    }
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "API error");
+    }
+
+    return data;
+  };
 
   const fetchTasks = async () => {
-    if (!user?.id) return;
     setLoading(true);
 
     try {
-      const { data, error } = await supabase
-        .from("tasks")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("order_index", { ascending: true });
+      const data = await apiFetch("/tasks");
 
-      if (error) {
-        console.error("Error fetching tasks:", error);
-        return;
-      }
+      if (!data) return;
 
-      const mapped: Task[] = (data ?? []).map((t: any) => ({
+      const mapped: Task[] = data.map((t: any) => ({
         id: t.id,
         text: t.title,
         completed: t.is_completed,
@@ -65,53 +85,46 @@ export default function Home() {
       }));
 
       setTasks(mapped);
+    } catch (error) {
+      console.error("Fetch error:", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (user) fetchTasks();
-  }, [user]);
-
+    fetchTasks();
+  }, []);
 
   const handleAddTask = async (text: string, color: string, dueDate: Date) => {
-    if (!user?.id) return;
-
-    const { data, error } = await supabase
-      .from("tasks")
-      .insert([
-        {
-          user_id: user.id,
+    try {
+      const row = await apiFetch("/tasks", {
+        method: "POST",
+        body: JSON.stringify({
           title: text,
-          is_completed: false,
           color,
           due_date: dueDate?.toISOString() ?? null,
-          order_index: tasks.length,
+        }),
+      });
+
+      if (!row) return;
+
+      setTasks((prev) => [
+        ...prev,
+        {
+          id: row.id,
+          text,
+          completed: false,
+          color,
+          dueDate,
         },
-      ])
-      .select("*");
+      ]);
 
-    if (error) {
-      console.error("Error adding task:", error);
-      return;
+      setModalVisible(false);
+    } catch (error) {
+      console.error("Add error:", error);
     }
-
-    const row = data?.[0];
-    if (!row) return;
-
-    const newTask: Task = {
-      id: row.id,
-      text,
-      completed: false,
-      color,
-      dueDate,
-    };
-
-    setTasks((prev) => [...prev, newTask]);
-    setModalVisible(false);
   };
-
 
   const handleCompleteTask = async (id: string) => {
     const task = tasks.find((t) => t.id === id);
@@ -123,14 +136,10 @@ export default function Home() {
       prev.map((t) => (t.id === id ? { ...t, completed: true } : t))
     );
 
-    const { error } = await supabase
-      .from("tasks")
-      .update({ is_completed: true })
-      .eq("id", id);
-
-    if (error) {
-      console.error("Error marking task complete:", error);
-      return;
+    try {
+      await apiFetch(`/tasks/${id}/complete`, { method: "PUT" });
+    } catch (error) {
+      console.error("Complete error:", error);
     }
 
     pendingDeleteIdRef.current = id;
@@ -141,35 +150,13 @@ export default function Home() {
 
     deleteTimeoutRef.current = setTimeout(async () => {
       if (pendingDeleteIdRef.current !== id) return;
-      if (!user?.id) return;
-      const { error: insertError } = await supabase
-        .from("completed_tasks")
-        .insert([
-          {
-            user_id: user.id, 
-            title: taskRef.current?.text,
-            color: taskRef.current?.color,
-            due_date: taskRef.current?.dueDate?.toISOString() ?? null,
-            completed_at: new Date().toISOString(),
-          },
-        ]);
 
-      if (insertError) {
-        console.error("Error inserting into completed_tasks:", insertError);
-        return;
+      try {
+        await apiFetch(`/tasks/${id}`, { method: "DELETE" });
+        setTasks((prev) => prev.filter((t) => t.id !== id));
+      } catch (error) {
+        console.error("Delete error:", error);
       }
-
-      const { error: deleteError } = await supabase
-        .from("tasks")
-        .delete()
-        .eq("id", id);
-
-      if (deleteError) {
-        console.error("Error deleting from tasks:", deleteError);
-        return;
-      }
-
-      setTasks((prev) => prev.filter((t) => t.id !== id));
 
       pendingDeleteIdRef.current = null;
       setPendingDeleteId(null);
@@ -177,7 +164,6 @@ export default function Home() {
       deleteTimeoutRef.current = null;
     }, 3000);
   };
-
 
   const handleUndo = async () => {
     const id = pendingDeleteIdRef.current;
@@ -188,12 +174,11 @@ export default function Home() {
       deleteTimeoutRef.current = null;
     }
 
-    const { error } = await supabase
-      .from("tasks")
-      .update({ is_completed: false })
-      .eq("id", id);
-
-    if (error) console.error("Error undoing:", error);
+    try {
+      await apiFetch(`/tasks/${id}/undo`, { method: "PUT" });
+    } catch (error) {
+      console.error("Undo error:", error);
+    }
 
     setTasks((prev) =>
       prev.map((t) => (t.id === id ? { ...t, completed: false } : t))
@@ -204,41 +189,29 @@ export default function Home() {
     setUndoVisible(false);
   };
 
-
   const handleDeleteTask = async (id: string) => {
-    if (pendingDeleteIdRef.current === id && deleteTimeoutRef.current) {
-      clearTimeout(deleteTimeoutRef.current);
-      deleteTimeoutRef.current = null;
-      pendingDeleteIdRef.current = null;
-      setPendingDeleteId(null);
-      setUndoVisible(false);
+    try {
+      await apiFetch(`/tasks/${id}`, { method: "DELETE" });
+      setTasks((prev) => prev.filter((t) => t.id !== id));
+    } catch (error) {
+      console.error("Delete error:", error);
     }
-
-    const { error } = await supabase.from("tasks").delete().eq("id", id);
-
-    if (error) {
-      console.error("Error deleting:", error);
-      return;
-    }
-
-    setTasks((prev) => prev.filter((t) => t.id !== id));
   };
-
 
   const handleDragEnd = async ({ data }: { data: Task[] }) => {
     setTasks(data);
 
-    for (let index = 0; index < data.length; index++) {
-      const task = data[index];
-      const { error } = await supabase
-        .from("tasks")
-        .update({ order_index: index })
-        .eq("id", task.id);
-
-      if (error) console.error("Error order:", error);
+    for (let i = 0; i < data.length; i++) {
+      try {
+        await apiFetch(`/tasks/${data[i].id}/reorder`, {
+          method: "PUT",
+          body: JSON.stringify({ order_index: i }),
+        });
+      } catch (error) {
+        console.error("Reorder error:", error);
+      }
     }
   };
-
 
   const renderItem = ({ item, drag }: RenderItemParams<Task>) => (
     <View style={{ paddingVertical: 6 }}>
