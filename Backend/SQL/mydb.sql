@@ -32,8 +32,8 @@ CREATE TABLE mydb.streaks (
 
     title text NOT NULL,
 
-    Date_Started timestamptz NOT NULL DEFAULT now(),  -- This is the date that the streak was created
-    Date_Ended timestamptz,  -- This is the date that the streak was completed and no longer active
+    date_started timestamptz NOT NULL DEFAULT now(),  -- This is the date that the streak was created
+    date_ended timestamptz,  -- This is the date that the streak was completed and no longer active
 
 
     start_time timestamptz,    -- This is the start time of the current interval
@@ -45,7 +45,7 @@ CREATE TABLE mydb.streaks (
     data JSONB NOT NULL DEFAULT '{}'::jsonb,
 
     is_paused boolean NOT NULL DEFAULT false,
-    paused_at timestamptz,
+    paused_at timestamptz
 
 
 );
@@ -57,8 +57,8 @@ CREATE TABLE mydb.completed_streaks (
 
     title text NOT NULL,
 
-    Date_Started timestamptz NOT NULL,
-    Date_Ended timestamptz NOT NULL,
+    date_started timestamptz NOT NULL,
+    date_ended timestamptz NOT NULL,
 
     interval_seconds bigint NOT NULL CHECK (interval_seconds > 0),
 
