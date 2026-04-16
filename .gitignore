@@ -41,6 +41,8 @@ MyProgressManager/lib/
 
 
 # Python
+__pycache__/
+*.pyc
 Backend/__pycache__/
 Backend/*.pyc
 Backend/.env
