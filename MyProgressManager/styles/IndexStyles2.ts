@@ -30,5 +30,6 @@ export const styles = StyleSheet.create({
     width: "95%",
     lineHeight: 22,
   },
+
 });
  
