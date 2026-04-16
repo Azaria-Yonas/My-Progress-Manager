@@ -41,6 +41,7 @@ MyProgressManager/lib/
 
 
 # Python
+__pycache__/
 Backend/__pycache__/
 Backend/*.pyc
 Backend/.env
@@ -54,3 +55,7 @@ Backend/node_modules/
 .ini
 
 Backend/env/.env
+
+
+
+Backend\auth\__pycache__/
