@@ -246,7 +246,6 @@ export default function AuthModal({ visible, onClose }: AuthModalProps) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
 
-  // ✅ LOGIN (backend)
   const handleLogin = async () => {
     try {
       const res = await fetch(`${API}/login`, {
@@ -276,7 +275,6 @@ export default function AuthModal({ visible, onClose }: AuthModalProps) {
     }
   };
 
-  // ✅ SIGNUP (backend)
   const handleSignup = async () => {
     try {
       const res = await fetch(`${API}/signup`, {
@@ -308,7 +306,6 @@ export default function AuthModal({ visible, onClose }: AuthModalProps) {
     }
   };
 
-  // (unchanged UI behavior)
   const handleReset = async () => {
     setMode("sent");
   };
@@ -351,7 +348,6 @@ export default function AuthModal({ visible, onClose }: AuthModalProps) {
             </>
           )}
 
-          {/* SIGNUP */}
           {mode === "signup" && (
             <>
               <Text style={styles.title}>Sign Up</Text>
@@ -395,7 +391,6 @@ export default function AuthModal({ visible, onClose }: AuthModalProps) {
             </>
           )}
 
-          {/* RESET */}
           {mode === "reset" && (
             <>
               <Text style={styles.title}>Reset Password</Text>
@@ -417,7 +412,6 @@ export default function AuthModal({ visible, onClose }: AuthModalProps) {
             </>
           )}
 
-          {/* SENT */}
           {mode === "sent" && (
             <>
               <Text style={styles.title}>Email Sent</Text>
