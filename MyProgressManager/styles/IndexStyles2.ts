@@ -30,14 +30,6 @@ export const styles = StyleSheet.create({
     width: "95%",
     lineHeight: 22,
   },
-  input: {
-  backgroundColor: "rgba(255,255,255,0.18)",
-  color: "white",
-  paddingHorizontal: 14,
-  paddingVertical: 12,
-  borderRadius: 10,
-  marginBottom: 12,
-  width: 260,
-},
+
 });
  
