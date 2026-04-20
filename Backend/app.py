@@ -16,7 +16,7 @@ app = Flask(__name__)
 def login_route():
     return login()
 
-@app.route("/sigup", methods=["POST"])              # SignUp
+@app.route("/signup", methods=["POST"])              # SignUp
 def signup_route_route():
     return signup()
 
