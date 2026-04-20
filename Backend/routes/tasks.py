@@ -9,8 +9,8 @@ def fecth_tasks(user_id):
     with psycopg_connect() as conn:
         with conn.cursor() as curr:
             curr.execute("""
-                SELECT title, description, due_date, color, id, order_index, is_compeleted FROM mydb.tasks
-                WHERE user_id = %s
+                SELECT id, title, description, due_date, color, order_index, is_completed FROM mydb.tasks
+                WHERE user_id = %s AND is_completed = False
                 ORDER BY order_index
             """,
             (user_id,)) 
@@ -19,30 +19,45 @@ def fecth_tasks(user_id):
 
             for row in rows:
                 results.append({
-                    "title": row[0],
-                    "description": row[1],
-                    "due_date": row[2],
-                    "color": row[3],
-                    "id" : row[4],
-                    "order_index": row[5],
+                    "id" : row[0],
+                    "title": row[1],
+                    "description": row[2],
+                    "due_date": row[3],
+                    "color": row[4],
+                    "order_index" : row[5],
                     "is_completed": row[6]
                 })
 
     return jsonify(results)
 
 
-def create_task(id, title, description, color, created_at, due_date):
+def create_task(user_id, title, description, color, due_date):
     try:
         with psycopg_connect() as conn:
             with conn.cursor() as curr:
                 curr.execute("""
-                    INSERT INTO mydb.tasks (id, title, description, color, created_at, due_date)
-                    VALUES (%s, %s, %s, %s, %s, %s)
+                    INSERT INTO mydb.tasks (user_id, title, description, color, due_date)
+                    VALUES (%s, %s, %s, %s, %s)
+                    RETURNING id
                 """,
-                (id, title, description, color, created_at, due_date))
-                return jsonify({"Task Successfully Created"})
+                (user_id, title, description, color, due_date))
+
+                row = curr.fetchone()
+                if row is None:
+                    raise Exception("Insert failed: no ID returned")
+
+                task_id = row[0]
+            
+                return jsonify({
+                    "id": task_id,
+                    "title": title,
+                    "description": description,
+                    "color": color,
+                    "due_date": due_date,
+                    "is_completed": False
+                })
     except Exception as e:
-        return jsonify({"Error: ": e})
+        return jsonify({"Error: ": e}), 400
 
 
 def update_task(id, **values):
