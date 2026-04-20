@@ -58,3 +58,21 @@ def create_task(user_id, title, description, color, due_date):
                 })
     except Exception as e:
         return jsonify({"Error: ": str(e)}), 400
+    
+def update_task(id, **values):
+    def unravel(kwargs):
+        values = ""
+        for k, v in kwargs:
+            values += f"{k} = {v},"
+        return values
+
+    try:
+        with psycopg_connect() as conn:
+            with conn.cursor() as curr:
+                curr.execute("""
+                    UPDATE mydb.tasks SET %s 
+                    WHERE id = %s
+                """,
+                (id,unravel(kwargs=values)))
+    except Exception as e:
+        return jsonify({"Error: ", str(e)})
