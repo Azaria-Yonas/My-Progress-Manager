@@ -9,7 +9,7 @@ CREATE TABLE mydb.tasks (
     color text NOT NULL,
     due_date timestamptz NOT NULL,
     created_at timestamptz DEFAULT now(),
-    updated_at timestamptz DEFAULT now()
+    completed_at timestamptz NULL
 );
 
 
