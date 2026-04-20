@@ -76,3 +76,21 @@ def update_task(id, **values):
                 (id,unravel(kwargs=values)))
     except Exception as e:
         return jsonify({"Error: ", str(e)})
+    
+def delete_task(id):
+    try:
+        with psycopg_connect() as conn:
+            with conn.cursor() as curr:
+                curr.execute("""
+                    DELETE FROM mydb.tasks WHERE id = %s
+                """,
+                (id,))
+        return jsonify ({"Successfully Deleted Task"})
+    except Exception as e:
+        return jsonify({"Error: ": str(e)})
+
+def complete_task(id):
+    # Update task
+    # Copy Paste to Completed Task
+    # Delete Task
+    return jsonify({"Hello"})
