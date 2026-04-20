@@ -34,12 +34,11 @@ def ctasks():
     try:
         data = request.json
         title = data["title"]
-        description = data["description"]
+        description = data.get("description", "")        
         color = data["color"]
-        created_at = data["created_at"]
         due_date = data["due_date"]
         id = authenticate_userid(request)
-        return create_task(id, title, description, color, created_at, due_date)
+        return create_task(id, title, description, color, due_date)
     except Exception as e:
         return str(e), 400
 
