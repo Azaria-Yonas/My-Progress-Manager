@@ -57,7 +57,7 @@ def create_task(user_id, title, description, color, due_date):
                     "is_completed": False
                 })
     except Exception as e:
-        return jsonify({"Error: ": e}), 400
+        return jsonify({"Error: ": str(e)}), 400
 
 
 def update_task(id, **values):
@@ -76,7 +76,7 @@ def update_task(id, **values):
                 """,
                 (id,unravel(kwargs=values)))
     except Exception as e:
-        return jsonify({"Error: ", e})
+        return jsonify({"Error: ", str(e)})
      
 
 def delete_task(id):
@@ -89,7 +89,7 @@ def delete_task(id):
                 (id,))
         return jsonify ({"Successfully Deleted Task"})
     except Exception as e:
-        return jsonify({"Error: ": e})
+        return jsonify({"Error: ": str(e)})
 
 def complete_task(id):
     # Update task
