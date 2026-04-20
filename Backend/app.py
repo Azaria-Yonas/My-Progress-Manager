@@ -3,7 +3,7 @@ from flask import Flask, request
 from auth.auth import authenticate_userid
 from routes.login import login
 from routes.signup import signup
-from routes.tasks import fecth_tasks
+from routes.tasks import fecth_tasks, create_task
 from routes.streaks import fecth_streaks
 
 
@@ -26,6 +26,19 @@ def ftasks():
     try:
         id = authenticate_userid(request)
         return fecth_tasks(id)
+    except Exception as e:
+        return str(e), 400
+    
+@app.route("/tasks", methods = ["POST"])            # Create Tasks
+def ctasks():
+    try:
+        data = request.json
+        title = data["title"]
+        description = data.get("description", "")        
+        color = data["color"]
+        due_date = data["due_date"]
+        id = authenticate_userid(request)
+        return create_task(id, title, description, color, due_date)
     except Exception as e:
         return str(e), 400
 
