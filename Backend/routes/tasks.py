@@ -29,3 +29,55 @@ def fecth_tasks(user_id):
                 })
 
     return jsonify(results)
+
+
+def create_task(id, title, description, color, created_at, due_date):
+    try:
+        with psycopg_connect() as conn:
+            with conn.cursor() as curr:
+                curr.execute("""
+                    INSERT INTO mydb.tasks (id, title, description, color, created_at, due_date)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                """,
+                (id, title, description, color, created_at, due_date))
+                return jsonify({"Task Successfully Created"})
+    except Exception as e:
+        return jsonify({"Error: ": e})
+
+
+def update_task(id, **values):
+    def unravel(kwargs):
+        values = ""
+        for k, v in kwargs:
+            values += f"{k} = {v},"
+        return values
+
+    try:
+        with psycopg_connect() as conn:
+            with conn.cursor() as curr:
+                curr.execute("""
+                    UPDATE mydb.tasks SET %s 
+                    WHERE id = %s
+                """,
+                (id,unravel(kwargs=values)))
+    except Exception as e:
+        return jsonify({"Error: ", e})
+     
+
+def delete_task(id):
+    try:
+        with psycopg_connect() as conn:
+            with conn.cursor() as curr:
+                curr.execute("""
+                    DELETE FROM mydb.tasks WHERE id = %s
+                """,
+                (id,))
+        return jsonify ({"Successfully Deleted Task"})
+    except Exception as e:
+        return jsonify({"Error: ": e})
+
+def complete_task(id):
+    # Update task
+    # Copy Paste to Completed Task
+    # Delete Task
+    return jsonify({"Hello"})
