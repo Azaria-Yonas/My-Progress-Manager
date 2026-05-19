@@ -1,66 +1,103 @@
 import React, {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useState,
   ReactNode,
 } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
-type User = {
-  id: string;
-};
+import {
+  AuthService,
+  AuthUser,
+  LoginPayload,
+  SignupPayload,
+} from "../services/auth";
+import {
+  clearToken,
+  getToken,
+  setToken,
+} from "../services/tokenStorage";
 
 type AuthContextType = {
-  user: User | null;
-  loading: boolean;
+  user: AuthUser | null;
+  token: string | null;
+  initializing: boolean;
+  login: (payload: LoginPayload) => Promise<AuthUser>;
+  signup: (payload: SignupPayload) => Promise<AuthUser>;
+  logout: () => Promise<void>;
+  refreshUser: () => Promise<AuthUser | null>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API = "https://my-progress-manager.onrender.com";
-const TOKEN_KEY = "access_token";
+type AuthProviderProps = {
+  children: ReactNode;
+};
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+export function AuthProvider({ children }: AuthProviderProps) {
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [token, setTokenState] = useState<string | null>(null);
+  const [initializing, setInitializing] = useState(true);
+
+  const refreshUser = useCallback(async (): Promise<AuthUser | null> => {
+    try {
+      const me = await AuthService.me();
+      setUser(me);
+      return me;
+    } catch {
+      await clearToken();
+      setTokenState(null);
+      setUser(null);
+      return null;
+    }
+  }, []);
 
   useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const token = await AsyncStorage.getItem(TOKEN_KEY);
-
-        if (!token) {
-          setUser(null);
-          return;
-        }
-
-        const res = await fetch(`${API}/me`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        const data = await res.json();
-
-        if (res.ok && data.authenticated) {
-          setUser({ id: data.user_id });
-        } else {
-          setUser(null);
-          await AsyncStorage.removeItem(TOKEN_KEY);
-        }
-      } catch {
-        setUser(null);
-      } finally {
-        setLoading(false);
+    let cancelled = false;
+    (async () => {
+      const stored = await getToken();
+      if (cancelled) return;
+      if (!stored) {
+        setInitializing(false);
+        return;
       }
+      setTokenState(stored);
+      await refreshUser();
+      if (!cancelled) setInitializing(false);
+    })();
+    return () => {
+      cancelled = true;
     };
+  }, [refreshUser]);
 
-    checkUser();
+  const login = useCallback(async (payload: LoginPayload) => {
+    const res = await AuthService.login(payload);
+    await setToken(res.access_token);
+    setTokenState(res.access_token);
+    setUser(res.user);
+    return res.user;
+  }, []);
+
+  const signup = useCallback(async (payload: SignupPayload) => {
+    const res = await AuthService.signup(payload);
+    await setToken(res.access_token);
+    setTokenState(res.access_token);
+    setUser(res.user);
+    return res.user;
+  }, []);
+
+  const logout = useCallback(async () => {
+    await AuthService.logout();
+    await clearToken();
+    setTokenState(null);
+    setUser(null);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider
+      value={{ user, token, initializing, login, signup, logout, refreshUser }}
+    >
       {children}
     </AuthContext.Provider>
   );
