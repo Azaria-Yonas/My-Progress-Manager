@@ -67,3 +67,6 @@ MyProgressManager/constants/config.ts
 desktop.ini
 
 .hintrc
+
+*.DS_Store
+.DS_Store
