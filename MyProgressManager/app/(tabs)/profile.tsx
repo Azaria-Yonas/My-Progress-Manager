@@ -1,6 +1,6 @@
 // app/(tabs)/profile.tsx
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -9,23 +9,20 @@ import {
   TouchableOpacity,
 } from "react-native";
 
-import { supabase } from "../../lib/supabaseClient";
 import { useThemeMode } from "../../context/ThemeContext";
 import { useTypography } from "../../context/TypographyContext";
+import { useAuth } from "../../context/AuthProvider";
 
 import ReusableAnimatedHeader from "../../components/ReusableAnimatedHeader";
 import { createReusableHeaderStyles } from "../../styles/ReusableHeaderStyles";
 import { createProfileStyles } from "../../styles/ProfileStyles";
 import BottomBar from "../../components/BottomBar";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 
-import type { User } from "@supabase/supabase-js";
-
 const ProfileScreen = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, logout, refreshUser, initializing } = useAuth();
+  const [refreshing, setRefreshing] = useState(true);
 
   const scrollY = useRef(new Animated.Value(0)).current;
 
@@ -43,45 +40,22 @@ const ProfileScreen = () => {
 
   const handleLogout = async () => {
     setConfirmVisible(false);
-    await supabase.auth.signOut();
-    await AsyncStorage.clear();
+    await logout();
     router.replace("/(tabs)/loginSignup");
   };
 
-  // 🔥 FIXED — Always fetch fresh metadata from Supabase to avoid stale names
-  const loadUser = async () => {
-    try {
-      // Get main user session
-      const { data, error } = await supabase.auth.getUser();
-      if (error || !data?.user) {
-        setLoading(false);
-        return;
-      }
-
-      const baseUser = data.user;
-
-      // Force refresh identity data (fixes wrong name issue)
-      const { data: identities } = await supabase.auth.getUserIdentities();
-
-      const freshMetadata =
-        identities?.identities?.[0]?.identity_data ?? baseUser.user_metadata;
-
-      const mergedUser: User = {
-        ...baseUser,
-        user_metadata: freshMetadata,
-      };
-
-      setUser(mergedUser);
-    } catch (err) {
-      console.log("Profile load error:", err);
-    }
-
-    setLoading(false);
-  };
-
   useEffect(() => {
-    loadUser();
-  }, []);
+    let cancelled = false;
+    (async () => {
+      await refreshUser();
+      if (!cancelled) setRefreshing(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [refreshUser]);
+
+  const loading = initializing || refreshing;
 
   if (loading || !user) {
     return (
@@ -91,13 +65,14 @@ const ProfileScreen = () => {
     );
   }
 
-  // Extract metadata safely
-  const first = user.user_metadata?.firstName || "";
-  const last = user.user_metadata?.lastName || "";
+  const first = user.firstName || "";
+  const last = user.lastName || "";
   const displayName = (first + " " + last).trim() || "No name set";
 
   const email = user.email;
-  const createdAt = new Date(user.created_at).toLocaleDateString();
+  const createdAt = user.created_at
+    ? new Date(user.created_at).toLocaleDateString()
+    : "";
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
