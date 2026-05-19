@@ -9,9 +9,8 @@ def fecth_tasks(user_id):
     with psycopg_connect() as conn:
         with conn.cursor() as curr:
             curr.execute("""
-                SELECT title, description, due_date, color, id, order_index, is_compeleted FROM mydb.tasks
-                WHERE user_id = %s
-                ORDER BY order_index
+                SELECT id, title, is_completed, color, due_date, order_index 
+                FROM public.tasks
             """,
             (user_id,)) 
 
@@ -19,13 +18,12 @@ def fecth_tasks(user_id):
 
             for row in rows:
                 results.append({
-                    "title": row[0],
-                    "description": row[1],
-                    "due_date": row[2],
-                    "color": row[3],
-                    "id" : row[4],
-                    "order_index": row[5],
-                    "is_completed": row[6]
+                    "id": row[0], 
+                    "title": row[1], 
+                    "is_completed": row[2], 
+                    "color": row[3], 
+                    "due_date": row[4], 
+                    "order_index": row[5] or 0
                 })
 
     return jsonify(results)
