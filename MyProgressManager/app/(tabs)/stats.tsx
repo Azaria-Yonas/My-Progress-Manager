@@ -9,9 +9,9 @@ import {
   ScrollView,
 } from "react-native";
 
-import { supabase } from "../../lib/supabaseClient";
 import { useThemeMode } from "../../context/ThemeContext";
 import { useTypography } from "../../context/TypographyContext";
+import { useAuth } from "../../context/AuthProvider";
 
 import ReusableAnimatedHeader from "../../components/ReusableAnimatedHeader";
 import TaskAnalyticsCard from "../../components/TaskAnalyticsCard";
@@ -19,42 +19,18 @@ import { createReusableHeaderStyles } from "../../styles/ReusableHeaderStyles";
 import { createStatsStyles } from "../../styles/StatsStyles";
 import BottomBar from "../../components/BottomBar";
 
-import type { User } from "@supabase/supabase-js";
+import {
+  StatsService,
+  CompletedStreak,
+  CompletedTask,
+  CalendarData,
+} from "../../services/stats";
 
-
-interface CalendarDataEntry {
-  status: string;
-  index: number;
-}
-type CalendarData = Record<string, CalendarDataEntry>;
 
 interface IntervalEntry {
   key: string;
   status: string;
   index: number;
-}
-
-interface CompletedTask {
-  id: string;
-  user_id: string;
-  title: string;
-  color: string | null;
-  due_date: string | null;
-  completed_at: string;
-}
-
-interface CompletedStreak {
-  id: string;
-  user_id: string;
-  title: string;
-  streak_count: number;
-  duration_seconds: number;
-  created_at: string;
-  completed_at: string;
-  total_intervals: number;
-  successful_intervals: number;
-  failed_intervals: number;
-  calendar_data: CalendarData | null;
 }
 
 
@@ -68,7 +44,7 @@ function getLongestStreak(calendarData: CalendarData | null): number {
   let longest = 0;
   let current = 0;
 
-  for (const entry of entries as CalendarDataEntry[]) {
+  for (const entry of entries) {
     if (entry.status === "hit") {
       current++;
       longest = Math.max(longest, current);
@@ -98,12 +74,12 @@ const normalizeCalendarData = (
 };
 
 function getRowCount(intervals: IntervalEntry[]): number {
-  return Math.ceil(intervals.length / 7); 
+  return Math.ceil(intervals.length / 7);
 }
 
 
 const StatsScreen: React.FC = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const { user, initializing } = useAuth();
   const [loading, setLoading] = useState(true);
 
   const [completedStreaks, setCompletedStreaks] = useState<CompletedStreak[]>([]);
@@ -121,43 +97,38 @@ const StatsScreen: React.FC = () => {
 
 
   useEffect(() => {
-    const loadEverything = async () => {
-      const { data: userData } = await supabase.auth.getUser();
-      const currentUser = userData.user;
-      setUser(currentUser);
+    if (initializing) return;
 
-      if (!currentUser) {
-        setLoading(false);
-        return;
-      }
-
-      const [streakRes, taskRes] = await Promise.all([
-        supabase
-          .from("completed_streaks")
-          .select("*")
-          .eq("user_id", currentUser.id)
-          .order("completed_at", { ascending: false }),
-
-        supabase
-          .from("completed_tasks")
-          .select("*")
-          .eq("user_id", currentUser.id)
-          .order("completed_at", { ascending: false }),
-      ]);
-
-      if (!streakRes.error && streakRes.data) {
-        setCompletedStreaks(streakRes.data as CompletedStreak[]);
-      }
-
-      if (!taskRes.error && taskRes.data) {
-        setCompletedTasks(taskRes.data as CompletedTask[]);
-      }
-
+    if (!user) {
       setLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    const loadEverything = async () => {
+      try {
+        const [streaks, tasks] = await Promise.all([
+          StatsService.completedStreaks(),
+          StatsService.completedTasks(),
+        ]);
+
+        if (cancelled) return;
+
+        setCompletedStreaks(streaks);
+        setCompletedTasks(tasks);
+      } catch (err) {
+        console.error("Stats load error:", err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     };
 
     loadEverything();
-  }, []);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user, initializing]);
 
   if (!user || loading) {
     return (
@@ -234,7 +205,7 @@ const StatsScreen: React.FC = () => {
 
                 const visibleIntervals = isExpanded
                   ? intervals
-                  : intervals.slice(0, 14); 
+                  : intervals.slice(0, 14);
 
                 return (
                   <View key={streak.id} style={glass}>
