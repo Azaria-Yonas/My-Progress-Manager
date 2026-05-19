@@ -46,30 +46,17 @@ export default function GetStarted() {
 
               <Text style={styles.introText}>
 
-MyProgressManager helps you stay consistent, build healthy habits, and track your progress in a clear and motivating way. Whether you're managing daily tasks or maintaining long-term streaks, the app gives you simple tools that keep you organized and on track. {"\n"}
-
-Add goals, log your progress, and watch your routines transform over time. Your Stats page breaks down your performance, while streaks help you stay accountable and celebrate consistency with visual reports and daily insights. {"\n"}
-
-Before you begin, please note: {"\n"}
-- Do NOT use your real email or real password{"\n"}
-- Create a simple login using any made-up email{"\n"}
-- Choose a short and memorable password{"\n"}
-- Your email does NOT need to really exist{"\n"}
-This keeps your information safe while allowing you to explore the app freely.
-
-Getting started is easy:{"\n"}
-- Add a task or create a streak{"\n"}
-- Log your progress each day or interval{"\n"}
-- View your streak history and insights{"\n"}
-- Stay consistent and watch your growth build over time{"\n"}
-
-Let’s build your progress—one day at a time.
-
-
+MyProgressManager helps you build better habits, stay consistent, and track your progress over time. Whether you're managing daily tasks, personal goals, or long-term streaks, the app provides simple tools to help you stay focused and organized.{"\n"}
+Track your routines, monitor your progress, and view insights that help you stay motivated. The Stats page gives you a clear view of your consistency, while streak tracking encourages accountability and long-term growth.{"\n"}
+Getting started is simple:{"\n"}
+Create an account or sign in{"\n"}
+Add tasks, goals, or streaks{"\n"}
+Log your progress regularly{"\n"}
+View your stats and consistency insights{"\n"}
+Build momentum one day at a time{"\n"}
+Stay consistent. Stay motivated. Keep progressing.{"\n"}
 Terms of Service:{"\n"}
-By using MyProgressManager, you agree that this app is for personal productivity and demonstration purposes only. No real personal data should be entered into the app, and all usage is at your discretion.
-
-
+Use MyProgressManager at your own risk. The app is provided "as is" without any warranties. We are not liable for any data loss or issues that may arise. By using the app, you agree to our terms and privacy policy.{"\n"}
 
               </Text>
 
