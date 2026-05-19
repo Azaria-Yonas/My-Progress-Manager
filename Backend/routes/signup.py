@@ -13,7 +13,12 @@ def signup():
             {
                 "email": data["email"],
                 "password": data["password"],
-                "options": {"data": {"display_name": data["firstName"] + " " + data["lastName"]}},
+                "options": {
+                    "data": {
+                        "display_name": data["firstName"] + " " + data["lastName"],
+                        "first_name": data["firstName"],
+                        "last_name" : data["lastName"]
+                        }},
             }
         )
         if not response.user or not response.session:
@@ -26,8 +31,8 @@ def signup():
             "user": {
                 "id": user.id,
                 "email": user.email,
-                "firstName": user.user_metadata.get("firstName"),
-                "lastName": user.user_metadata.get("lastName"),
+                "firstName": user.user_metadata.get("first_name"),
+                "lastName": user.user_metadata.get("last_name"),
             },
             "access_token": session.access_token
         }), 200
