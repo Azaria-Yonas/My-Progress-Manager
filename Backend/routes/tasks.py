@@ -11,6 +11,7 @@ def fecth_tasks(user_id):
             curr.execute("""
                 SELECT id, title, is_completed, color, due_date, order_index 
                 FROM public.tasks
+                WHERE id = %s
             """,
             (user_id,)) 
 
