@@ -15,9 +15,9 @@ import {
   Button,
 } from "react-native-paper";
 
-import { supabase } from "../lib/supabaseClient";
 import { useThemeMode } from "../context/ThemeContext";
 import { useTypography } from "../context/TypographyContext";
+import { StreaksService } from "../services/streaks";
 
 import { createStreakAddModalStyles } from "../styles/StreakAddModalStyles";
 
@@ -102,31 +102,17 @@ export default function StreakAddModal({ visible, onClose, onAdd }: Props) {
 
     if (!title.trim() || durationSeconds <= 0) return;
 
-    const { data: auth } = await supabase.auth.getUser();
-    const user = auth?.user;
-    if (!user) return;
-
-    const { data, error } = await supabase
-      .from("streaks")
-      .insert({
-        user_id: user.id,
+    try {
+      const data = await StreaksService.create({
         title: title.trim(),
         duration_seconds: durationSeconds,
-        cooldown_end: null,
-        streak_count: 0,
-        last_tap_at: null,
-      })
-      .select()
-      .single();
-
-    if (error) {
-      console.log("Streak insert error:", error);
-      return;
+      });
+      onAdd(data);
+      resetFields();
+      onClose();
+    } catch (err) {
+      console.log("Streak insert error:", err);
     }
-
-    onAdd(data);
-    resetFields();
-    onClose();
   };
 
   return (
