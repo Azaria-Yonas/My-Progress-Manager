@@ -1,73 +1,3 @@
-// import React, { useState } from "react"
-
-// type LoginResponse = {
-//     status: string
-//     email: string
-//     password: string
-// }
-
-// export default function LoginTest() {
-
-//     const [email, setEmail] = useState("")
-//     const [password, setPassword] = useState("")
-
-//     const [response, setResponse] = useState<LoginResponse | null>(null)
-
-
-//     const sendLogin = async () => {
-
-//         const res = await fetch("https://my-progress-manager.onrender.com/login", {
-//             method: "POST",
-//             headers: {
-//                 "Content-Type": "application/json"
-//             },
-//             body: JSON.stringify({
-//                 email,
-//                 password
-//             })
-//         })
-
-//         const data = await res.json()
-
-//         setResponse(data)
-//     }
-
-
-//     return (
-//         <div style={{ padding: 40 }}>
-
-//             <h2>Flask Login Test</h2>
-
-//             <input
-//                 placeholder="email"
-//                 value={email}
-//                 onChange={(e) => setEmail(e.target.value)}
-//             />
-
-//             <br /><br />
-
-//             <input
-//                 placeholder="password"
-//                 type="password"
-//                 value={password}
-//                 onChange={(e) => setPassword(e.target.value)}
-//             />
-
-//             <br /><br />
-
-//             <button onClick={sendLogin}>
-//                 Login
-//             </button>
-
-//             <h3>Response</h3>
-
-//             <pre>
-//                 {JSON.stringify(response, null, 2)}
-//             </pre>
-
-//         </div>
-//     )
-// }
 // app/index2.tsx
 import React, { useEffect, useState } from "react";
 import { View } from "react-native";
@@ -79,13 +9,10 @@ import Animated, {
 } from "react-native-reanimated";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { styles } from "../styles/IndexStyles2";
 import SpinningLogo from "../components/SpinningLogo";
-
-const API = "https://my-progress-manager.onrender.com";
-const TOKEN_KEY = "access_token";
+import { getToken } from "../services/tokenStorage";
 
 export default function Index() {
   const router = useRouter();
@@ -109,34 +36,8 @@ export default function Index() {
 
   useEffect(() => {
     const timer = setTimeout(async () => {
-      try {
-        const token = await AsyncStorage.getItem(TOKEN_KEY);
-
-        if (!token) {
-          setRedirectTo("/(tabs)/loginSignup");
-          return;
-        }
-
-        const res = await fetch(`${API}/me`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        const data = await res.json();
-
-        if (res.ok && data.authenticated) {
-          setRedirectTo("/(tabs)/home");
-        } else {
-          await AsyncStorage.removeItem(TOKEN_KEY);
-          setRedirectTo("/(tabs)/loginSignup");
-        }
-      } catch (error) {
-        console.error("Auth check failed:", error);
-        await AsyncStorage.removeItem(TOKEN_KEY);
-        setRedirectTo("/(tabs)/loginSignup");
-      }
+      const token = await getToken();
+      setRedirectTo(token ? "/(tabs)/home" : "/(tabs)/loginSignup");
     }, 4000);
 
     return () => clearTimeout(timer);
