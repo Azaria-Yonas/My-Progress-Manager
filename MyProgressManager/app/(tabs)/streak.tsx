@@ -2,9 +2,9 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { View, Animated, Alert } from "react-native";
-import { supabase } from "../../lib/supabaseClient";
 
 import { useThemeMode } from "../../context/ThemeContext";
+import { useAuth } from "../../context/AuthProvider";
 import StreaksHeader from "../../components/StreaksHeader";
 import StreakAddModal from "../../components/StreakAddModal";
 import StreakItem from "../../components/StreakItem";
@@ -21,50 +21,30 @@ import {
   StreakHistoryState,
 } from "../../utils/streakHistory";
 
-type DbStreak = {
-  id: string;
-  user_id: string;
-  title: string;
-  duration_seconds: number;
-  cooldown_end: string | null;
-  created_at: string;
-  updated_at: string | null;
-  streak_count: number;
-  last_tap_at: string | null;
-  paused?: boolean | null;
-};
+import { ApiStreak, StreaksService } from "../../services/streaks";
 
 const StreaksScreen: React.FC = () => {
   const scrollY = useRef(new Animated.Value(0)).current;
   const { theme } = useThemeMode();
+  const { user, initializing } = useAuth();
   const styles = createStreaksScreenStyles(theme);
 
-  const [streaks, setStreaks] = useState<DbStreak[]>([]);
+  const [streaks, setStreaks] = useState<ApiStreak[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
 
   const loadStreaks = async () => {
-    const { data: auth } = await supabase.auth.getUser();
-    const user = auth?.user;
     if (!user) return;
-
-    const { data, error } = await supabase
-      .from("streaks")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at");
-
-    if (error) {
-      console.log("Load error:", error);
-      return;
+    try {
+      const data = await StreaksService.list();
+      setStreaks(data ?? []);
+    } catch (err) {
+      console.log("Load error:", err);
     }
-
-    setStreaks((data || []) as DbStreak[]);
   };
 
   useEffect(() => {
-    loadStreaks();
-  }, []);
-
+    if (!initializing && user) loadStreaks();
+  }, [user, initializing]);
 
 
   async function loadHistoryFor(id: string): Promise<StreakHistoryState> {
@@ -88,7 +68,6 @@ const StreaksScreen: React.FC = () => {
   }
 
 
-
   const handlePress = async (id: string) => {
     const now = Math.floor(Date.now() / 1000);
     const nowISO = new Date(now * 1000).toISOString();
@@ -97,7 +76,6 @@ const StreaksScreen: React.FC = () => {
     if (!s) return;
 
     if (s.paused) return;
-
 
     let history = await loadHistoryFor(id);
 
@@ -114,11 +92,9 @@ const StreaksScreen: React.FC = () => {
       history = recordTap(history, now, D);
       newCount += 1;
       newCooldownEndUnix = now + D;
-    }
-    else if (now < cooldownEndUnix) {
+    } else if (now < cooldownEndUnix) {
       return;
-    }
-    else {
+    } else {
       history = recordTap(history, now, D);
 
       const elapsed = now - cooldownEndUnix;
@@ -136,70 +112,51 @@ const StreaksScreen: React.FC = () => {
       ? new Date(newCooldownEndUnix * 1000).toISOString()
       : null;
 
-    const { error } = await supabase
-      .from("streaks")
-      .update({
+    try {
+      await StreaksService.update(id, {
         streak_count: newCount,
         cooldown_end: cooldownISO,
         last_tap_at: nowISO,
-        updated_at: nowISO,
-      })
-      .eq("id", id);
-
-    if (error) console.log("Update error:", error);
+      });
+    } catch (err) {
+      console.log("Update error:", err);
+    }
 
     loadStreaks();
   };
 
 
-
   const handleExpire = async (id: string) => {
-    const nowISO = new Date().toISOString();
-
     const history = await loadHistoryFor(id);
     const updated = recordFail(history);
     await saveHistoryFor(id, updated);
 
-    const { error } = await supabase
-      .from("streaks")
-      .update({
+    try {
+      await StreaksService.update(id, {
         streak_count: 0,
         cooldown_end: null,
         last_tap_at: null,
-        updated_at: nowISO,
-      })
-      .eq("id", id);
-
-    if (error) console.log("Expire error:", error);
+      });
+    } catch (err) {
+      console.log("Expire error:", err);
+    }
 
     loadStreaks();
   };
-
 
 
   const handleTogglePause = async (id: string, paused: boolean) => {
-    const nowISO = new Date().toISOString();
-
-    const { error } = await supabase
-      .from("streaks")
-      .update({
-        paused: !paused,
-        updated_at: nowISO,
-      })
-      .eq("id", id);
-
-    if (error) console.log("Pause error:", error);
-
+    try {
+      await StreaksService.pause(id, !paused);
+    } catch (err) {
+      console.log("Pause error:", err);
+    }
     loadStreaks();
   };
 
 
-  const handleComplete = async (streak: DbStreak) => {
-    const { data: auth } = await supabase.auth.getUser();
-    const user = auth?.user;
+  const handleComplete = async (streak: ApiStreak) => {
     if (!user) return;
-
-    const nowISO = new Date().toISOString();
 
     const history = await loadHistoryFor(streak.id);
     const calendarData = exportCalendarData(history);
@@ -211,39 +168,23 @@ const StreaksScreen: React.FC = () => {
       (i) => i.status === "fail"
     ).length;
 
-    const { error: insertError } = await supabase
-      .from("completed_streaks")
-      .insert({
-        user_id: user.id,
-        title: streak.title,
-        streak_count: streak.streak_count,
-        duration_seconds: streak.duration_seconds,
-        created_at: streak.created_at,
-        completed_at: nowISO,
+    try {
+      await StreaksService.complete(streak.id, {
         total_intervals: history.intervals.length,
         successful_intervals: successCount,
         failed_intervals: failCount,
         calendar_data: calendarData,
       });
-
-    if (insertError) {
-      console.log("Complete insert error:", insertError);
+    } catch (err) {
+      console.log("Complete error:", err);
       return;
     }
 
     await clearHistoryFor(streak.id);
-
-    const { error: deleteError } = await supabase
-      .from("streaks")
-      .delete()
-      .eq("id", streak.id);
-
-    if (deleteError) console.log("Complete delete error:", deleteError);
-
     loadStreaks();
   };
 
-  const confirmComplete = (streak: DbStreak) => {
+  const confirmComplete = (streak: ApiStreak) => {
     Alert.alert(
       "Complete streak?",
       `This will move "${streak.title}" to your Stats page.`,
@@ -253,7 +194,6 @@ const StreaksScreen: React.FC = () => {
       ]
     );
   };
-
 
 
   return (
@@ -273,7 +213,7 @@ const StreaksScreen: React.FC = () => {
       <Animated.ScrollView
         scrollEventThrottle={16}
         onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { y: scrollY } } }], 
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
           { useNativeDriver: false }
         )}
         contentContainerStyle={{ paddingTop: 150, paddingBottom: 120 }}
