@@ -9,15 +9,14 @@ import TaskItem, { Task } from "../../components/TaskItem";
 import AnimatedHeader from "../../components/AnimatedHeader";
 import { useThemeMode } from "../../context/ThemeContext";
 import { useLoading } from "../../context/LoadingContext";
+import { useAuth } from "../../context/AuthProvider";
 import { useRouter } from "expo-router";
+import { TasksService } from "../../services/tasks";
 import BottomBar from "../../components/BottomBar";
 import { useTypography } from "../../context/TypographyContext";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
-const API = "https://my-progress-manager.onrender.com";
-const TOKEN_KEY = "access_token";
 
 export default function Home() {
+  const { user, initializing } = useAuth();
   const router = useRouter();
   const { fontSize, fontWeight } = useTypography();
   const { theme } = useThemeMode();
@@ -36,95 +35,48 @@ export default function Home() {
 
   const scrollY = useRef(new Animated.Value(0)).current;
 
-  const apiFetch = async (endpoint: string, options: any = {}) => {
-    const token = await AsyncStorage.getItem(TOKEN_KEY);
+  useEffect(() => {
+    if (!initializing && !user) router.replace("/(tabs)/loginSignup");
+  }, [user, initializing]);
 
-    if (!token) {
-      router.replace("/(tabs)/loginSignup");
-      return;
-    }
-
-    const res = await fetch(`${API}${endpoint}`, {
-      ...options,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-        ...(options.headers || {}),
-      },
-    });
-
-    if (res.status === 401) {
-      await AsyncStorage.removeItem(TOKEN_KEY);
-      router.replace("/(tabs)/loginSignup");
-      return;
-    }
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.error || "API error");
-    }
-
-    return data;
-  };
 
   const fetchTasks = async () => {
+    if (!user) return;
     setLoading(true);
 
     try {
-      const data = await apiFetch("/tasks");
-
-      if (!data) return;
-
-      const mapped: Task[] = data.map((t: any) => ({
-        id: t.id,
-        text: t.title,
-        completed: t.is_completed,
-        color: t.color,
-        dueDate: t.due_date ? new Date(t.due_date) : new Date(),
-      }));
-
-      setTasks(mapped);
-    } catch (error) {
-      console.error("Fetch error:", error);
+      const data = await TasksService.list();
+      setTasks(data);
+    } catch (err) {
+      console.error("Error fetching tasks:", err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchTasks();
-  }, []);
+    if (user) fetchTasks();
+  }, [user]);
+
 
   const handleAddTask = async (text: string, color: string, dueDate: Date) => {
+    if (!user) return;
+
     try {
-      const row = await apiFetch("/tasks", {
-        method: "POST",
-        body: JSON.stringify({
-          title: text,
-          color,
-          due_date: dueDate?.toISOString() ?? null,
-        }),
+      const created = await TasksService.create({
+        title: text,
+        color,
+        due_date: dueDate?.toISOString() ?? null,
+        order_index: tasks.length,
       });
 
-      if (!row) return;
-
-      setTasks((prev) => [
-        ...prev,
-        {
-          id: row.id,
-          text,
-          completed: false,
-          color,
-          dueDate,
-        },
-      ]);
-
+      setTasks((prev) => [...prev, created]);
       setModalVisible(false);
-    } catch (error) {
-      console.error("Add error:", error);
+    } catch (err) {
+      console.error("Error adding task:", err);
     }
   };
+
 
   const handleCompleteTask = async (id: string) => {
     const task = tasks.find((t) => t.id === id);
@@ -137,9 +89,14 @@ export default function Home() {
     );
 
     try {
-      await apiFetch(`/tasks/${id}/complete`, { method: "PUT" });
-    } catch (error) {
-      console.error("Complete error:", error);
+      await TasksService.update(id, { is_completed: true });
+    } catch (err) {
+      console.error("Error marking task complete:", err);
+
+      setTasks((prev) =>
+        prev.map((t) => (t.id === id ? { ...t, completed: false } : t))
+      );
+      return;
     }
 
     pendingDeleteIdRef.current = id;
@@ -150,13 +107,17 @@ export default function Home() {
 
     deleteTimeoutRef.current = setTimeout(async () => {
       if (pendingDeleteIdRef.current !== id) return;
+      if (!user) return;
 
       try {
-        await apiFetch(`/tasks/${id}`, { method: "DELETE" });
-        setTasks((prev) => prev.filter((t) => t.id !== id));
-      } catch (error) {
-        console.error("Delete error:", error);
+        // Backend owns the move into completed_tasks via /complete.
+        await TasksService.complete(id);
+      } catch (err) {
+        console.error("Error archiving completed task:", err);
+        return;
       }
+
+      setTasks((prev) => prev.filter((t) => t.id !== id));
 
       pendingDeleteIdRef.current = null;
       setPendingDeleteId(null);
@@ -164,6 +125,7 @@ export default function Home() {
       deleteTimeoutRef.current = null;
     }, 3000);
   };
+
 
   const handleUndo = async () => {
     const id = pendingDeleteIdRef.current;
@@ -175,9 +137,9 @@ export default function Home() {
     }
 
     try {
-      await apiFetch(`/tasks/${id}/undo`, { method: "PUT" });
-    } catch (error) {
-      console.error("Undo error:", error);
+      await TasksService.undoComplete(id);
+    } catch (err) {
+      console.error("Error undoing:", err);
     }
 
     setTasks((prev) =>
@@ -189,29 +151,43 @@ export default function Home() {
     setUndoVisible(false);
   };
 
+
   const handleDeleteTask = async (id: string) => {
+    if (pendingDeleteIdRef.current === id && deleteTimeoutRef.current) {
+      clearTimeout(deleteTimeoutRef.current);
+      deleteTimeoutRef.current = null;
+      pendingDeleteIdRef.current = null;
+      setPendingDeleteId(null);
+      setUndoVisible(false);
+    }
+
+    const previous = tasks;
+    setTasks((prev) => prev.filter((t) => t.id !== id));
+
     try {
-      await apiFetch(`/tasks/${id}`, { method: "DELETE" });
-      setTasks((prev) => prev.filter((t) => t.id !== id));
-    } catch (error) {
-      console.error("Delete error:", error);
+      await TasksService.delete(id);
+    } catch (err) {
+      console.error("Error deleting:", err);
+      setTasks(previous);
     }
   };
+
 
   const handleDragEnd = async ({ data }: { data: Task[] }) => {
     setTasks(data);
 
-    for (let i = 0; i < data.length; i++) {
-      try {
-        await apiFetch(`/tasks/${data[i].id}/reorder`, {
-          method: "PUT",
-          body: JSON.stringify({ order_index: i }),
-        });
-      } catch (error) {
-        console.error("Reorder error:", error);
-      }
+    const entries = data.map((task, index) => ({
+      id: task.id,
+      order_index: index,
+    }));
+
+    try {
+      await TasksService.reorder(entries);
+    } catch (err) {
+      console.error("Error reordering:", err);
     }
   };
+
 
   const renderItem = ({ item, drag }: RenderItemParams<Task>) => (
     <View style={{ paddingVertical: 6 }}>
