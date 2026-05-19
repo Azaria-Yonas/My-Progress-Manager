@@ -13,7 +13,7 @@ def signup():
             {
                 "email": data["email"],
                 "password": data["password"],
-                "options": {"data": {"Display Name": data["firstName"] + " " + data["lastName"]}},
+                "options": {"data": {"display_name": data["firstName"] + " " + data["lastName"]}},
             }
         )
         if not response.user or not response.session:
