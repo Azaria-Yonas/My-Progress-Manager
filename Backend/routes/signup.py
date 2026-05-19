@@ -29,7 +29,7 @@ def signup():
 
         return jsonify({
             "user": {
-                "id": user.id,
+                # "id": user.id,  # Id not needed: auth.py
                 "email": user.email,
                 "firstName": user.user_metadata.get("first_name"),
                 "lastName": user.user_metadata.get("last_name"),
