@@ -23,7 +23,7 @@ def login():
 
         return jsonify({
             "user": {
-                "id": user.id,
+                # "id": user.id, # ID not needed: auth.py
                 "email": user.email,
                 "firstName": user.user_metadata.get("firstName"),
                 "lastName": user.user_metadata.get("lastName"),
