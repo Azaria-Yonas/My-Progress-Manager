@@ -58,3 +58,12 @@ Backend/env/.env
 
 
 Backend\auth\__pycache__/
+
+MyProgressManager/constants/config.ts
+
+# vscode
+.vscode/
+
+desktop.ini
+
+.hintrc
