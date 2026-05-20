@@ -1,31 +1,37 @@
 # routes/tasks.py
 from flask import jsonify
+import psycopg as pg
 from clients.psycopg_connect import psycopg_connect
+
 
 
 
 def fecth_tasks(user_id):
     results = []
-    with psycopg_connect() as conn:
-        with conn.cursor() as curr:
-            curr.execute("""
-                SELECT id, title, is_completed, color, due_date, order_index 
-                FROM public.tasks
-                WHERE user_id = %s
-            """,
-            (user_id,)) 
+    try:
+        with psycopg_connect() as conn:
+            with conn.cursor() as curr:
+                curr.execute("""
+                    SELECT id, title, is_completed, color, due_date, order_index 
+                    FROM public.tasks
+                    WHERE user_id = %s
+                """,
+                (user_id,)) 
 
-            rows = curr.fetchall()
+                rows = curr.fetchall()
 
-            for row in rows:
-                results.append({
-                    "id": row[0], 
-                    "title": row[1], 
-                    "is_completed": row[2], 
-                    "color": row[3], 
-                    "due_date": row[4], 
-                    "order_index": row[5] or 0
-                })
+                for row in rows:
+                    results.append({
+                        "id": row[0], 
+                        "title": row[1], 
+                        "is_completed": row[2], 
+                        "color": row[3], 
+                        "due_date": row[4], 
+                        "order_index": row[5] or 0
+                    })
+    except pg.Error as e:
+        return jsonify({"Error: ": str(e)}), 400
+
 
     return jsonify(results)
 
@@ -54,7 +60,7 @@ def create_task(user_id, title, color, due_date):
                     "due_date": due_date,
                     "is_completed": False
                 })
-    except Exception as e:
+    except pg.Error as e:
         return jsonify({"Error: ": str(e)}), 400
     
 def update_task(id, **values):
@@ -72,7 +78,7 @@ def update_task(id, **values):
                     WHERE id = %s
                 """,
                 (id,unravel(kwargs=values)))
-    except Exception as e:
+    except pg.Error as e:
         return jsonify({"Error: ", str(e)})
     
 def delete_task(id):
@@ -84,7 +90,7 @@ def delete_task(id):
                 """,
                 (id,))
         return jsonify ({"Successfully Deleted Task"})
-    except Exception as e:
+    except pg.Error as e:
         return jsonify({"Error: ": str(e)})
 
 def complete_task(id):
@@ -104,7 +110,7 @@ def complete_task(id):
                     DELETE FROM public.tasks WHERE id = %s;
                 """,
                 (results[0], results[1], results[2], results[3], results[4], id))
-    except Exception as e:
+    except pg.Error as e:
         return jsonify({"Error": e})
     # Update task
     # Copy Paste to Completed Task
