@@ -88,6 +88,24 @@ def delete_task(id):
         return jsonify({"Error: ": str(e)})
 
 def complete_task(id):
+    try:
+
+        with psycopg_connect() as conn:
+            with conn.cursor() as curr:
+                curr.execute("""
+                    SELECT id, user_id, title, color, due_date FROM public.tasks
+                    WHERE id = %s
+                """,
+                (id,))
+                results = curr.fetchall()
+                curr.execute("""
+                    INSERT INTO public.completed_tasks (id, user_id, title, color, due_date)
+                    VALUES (%s, %s, %s, %s, %s);
+                    DELETE FROM public.tasks WHERE id = %s;
+                """,
+                (results[0], results[1], results[2], results[3], results[4], id))
+    except Exception as e:
+        return jsonify({"Error": e})
     # Update task
     # Copy Paste to Completed Task
     # Delete Task
