@@ -107,9 +107,12 @@ def complete_task(id):
                 curr.execute("""
                     INSERT INTO public.completed_tasks (id, user_id, title, color, due_date)
                     VALUES (%s, %s, %s, %s, %s);
-                    DELETE FROM public.tasks WHERE id = %s;
                 """,
-                (results[0], results[1], results[2], results[3], results[4], id))
+                results)
+                curr.execute("""
+                    DELETE FROM public.tasks 
+                    WHERE id = %s;
+                """,(id,))
     except pg.Error as e:
         return jsonify({"Error": e})
     return jsonify({"Hello"})
