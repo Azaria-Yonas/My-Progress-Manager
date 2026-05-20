@@ -112,7 +112,4 @@ def complete_task(id):
                 (results[0], results[1], results[2], results[3], results[4], id))
     except pg.Error as e:
         return jsonify({"Error": e})
-    # Update task
-    # Copy Paste to Completed Task
-    # Delete Task
     return jsonify({"Hello"})
