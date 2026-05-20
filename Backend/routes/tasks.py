@@ -30,16 +30,16 @@ def fecth_tasks(user_id):
     return jsonify(results)
 
 
-def create_task(user_id, title, description, color, due_date):
+def create_task(user_id, title, color, due_date):
     try:
         with psycopg_connect() as conn:
             with conn.cursor() as curr:
                 curr.execute("""
-                    INSERT INTO mydb.tasks (user_id, title, description, color, due_date)
-                    VALUES (%s, %s, %s, %s, %s)
+                    INSERT INTO public.tasks (user_id, title, color, due_date)
+                    VALUES (%s, %s, %s, %s)
                     RETURNING id
                 """,
-                (user_id, title, description, color, due_date))
+                (user_id, title, color, due_date))
 
                 row = curr.fetchone()
                 if row is None:
@@ -50,7 +50,6 @@ def create_task(user_id, title, description, color, due_date):
                 return jsonify({
                     "id": task_id,
                     "title": title,
-                    "description": description,
                     "color": color,
                     "due_date": due_date,
                     "is_completed": False
