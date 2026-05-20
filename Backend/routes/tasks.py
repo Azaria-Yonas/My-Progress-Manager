@@ -68,7 +68,7 @@ def update_task(id, **values):
         with psycopg_connect() as conn:
             with conn.cursor() as curr:
                 curr.execute("""
-                    UPDATE mydb.tasks SET %s 
+                    UPDATE public.tasks SET %s 
                     WHERE id = %s
                 """,
                 (id,unravel(kwargs=values)))
