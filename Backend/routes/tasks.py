@@ -1,46 +1,51 @@
 # routes/tasks.py
 from flask import jsonify
+import psycopg as pg
 from clients.psycopg_connect import psycopg_connect
+
 
 
 
 def fecth_tasks(user_id):
     results = []
-    with psycopg_connect() as conn:
-        with conn.cursor() as curr:
-            curr.execute("""
-                SELECT title, description, due_date, color, id, order_index, is_compeleted FROM mydb.tasks
-                WHERE user_id = %s
-                ORDER BY order_index
-            """,
-            (user_id,)) 
-
-            rows = curr.fetchall()
-
-            for row in rows:
-                results.append({
-                    "title": row[0],
-                    "description": row[1],
-                    "due_date": row[2],
-                    "color": row[3],
-                    "id" : row[4],
-                    "order_index": row[5],
-                    "is_completed": row[6]
-                })
-
-    return jsonify(results)
-
-
-def create_task(user_id, title, description, color, due_date):
     try:
         with psycopg_connect() as conn:
             with conn.cursor() as curr:
                 curr.execute("""
-                    INSERT INTO mydb.tasks (user_id, title, description, color, due_date)
-                    VALUES (%s, %s, %s, %s, %s)
+                    SELECT id, title, is_completed, color, due_date, order_index 
+                    FROM public.tasks
+                    WHERE user_id = %s
+                """,
+                (user_id,)) 
+
+                rows = curr.fetchall()
+
+                for row in rows:
+                    results.append({
+                        "id": row[0], 
+                        "title": row[1], 
+                        "is_completed": row[2], 
+                        "color": row[3], 
+                        "due_date": row[4], 
+                        "order_index": row[5] or 0
+                    })
+    except pg.Error as e:
+        return jsonify({"Error: ": str(e)}), 400
+
+
+    return jsonify(results)
+
+
+def create_task(user_id, title, color, due_date):
+    try:
+        with psycopg_connect() as conn:
+            with conn.cursor() as curr:
+                curr.execute("""
+                    INSERT INTO public.tasks (user_id, title, color, due_date)
+                    VALUES (%s, %s, %s, %s)
                     RETURNING id
                 """,
-                (user_id, title, description, color, due_date))
+                (user_id, title, color, due_date))
 
                 row = curr.fetchone()
                 if row is None:
@@ -51,12 +56,11 @@ def create_task(user_id, title, description, color, due_date):
                 return jsonify({
                     "id": task_id,
                     "title": title,
-                    "description": description,
                     "color": color,
                     "due_date": due_date,
                     "is_completed": False
                 })
-    except Exception as e:
+    except pg.Error as e:
         return jsonify({"Error: ": str(e)}), 400
     
 def update_task(id, **values):
@@ -70,11 +74,11 @@ def update_task(id, **values):
         with psycopg_connect() as conn:
             with conn.cursor() as curr:
                 curr.execute("""
-                    UPDATE mydb.tasks SET %s 
+                    UPDATE public.tasks SET %s 
                     WHERE id = %s
                 """,
                 (id,unravel(kwargs=values)))
-    except Exception as e:
+    except pg.Error as e:
         return jsonify({"Error: ", str(e)})
     
 def delete_task(id):
@@ -82,15 +86,33 @@ def delete_task(id):
         with psycopg_connect() as conn:
             with conn.cursor() as curr:
                 curr.execute("""
-                    DELETE FROM mydb.tasks WHERE id = %s
+                    DELETE FROM public.tasks WHERE id = %s
                 """,
                 (id,))
         return jsonify ({"Successfully Deleted Task"})
-    except Exception as e:
+    except pg.Error as e:
         return jsonify({"Error: ": str(e)})
 
 def complete_task(id):
-    # Update task
-    # Copy Paste to Completed Task
-    # Delete Task
+    try:
+
+        with psycopg_connect() as conn:
+            with conn.cursor() as curr:
+                curr.execute("""
+                    SELECT id, user_id, title, color, due_date FROM public.tasks
+                    WHERE id = %s
+                """,
+                (id,))
+                results = curr.fetchall()
+                curr.execute("""
+                    INSERT INTO public.completed_tasks (id, user_id, title, color, due_date)
+                    VALUES (%s, %s, %s, %s, %s);
+                """,
+                results)
+                curr.execute("""
+                    DELETE FROM public.tasks 
+                    WHERE id = %s;
+                """,(id,))
+    except pg.Error as e:
+        return jsonify({"Error": e})
     return jsonify({"Hello"})
