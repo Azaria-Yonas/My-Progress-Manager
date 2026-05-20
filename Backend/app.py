@@ -38,7 +38,7 @@ def ctasks():
         color = data["color"]
         due_date = data["due_date"]
         id = authenticate_userid(request)
-        return create_task(id, title, description, color, due_date)
+        return create_task(id, title, color, due_date)
     except Exception as e:
         return str(e), 400
 
