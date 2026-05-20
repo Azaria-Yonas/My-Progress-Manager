@@ -80,7 +80,7 @@ def delete_task(id):
         with psycopg_connect() as conn:
             with conn.cursor() as curr:
                 curr.execute("""
-                    DELETE FROM mydb.tasks WHERE id = %s
+                    DELETE FROM public.tasks WHERE id = %s
                 """,
                 (id,))
         return jsonify ({"Successfully Deleted Task"})
