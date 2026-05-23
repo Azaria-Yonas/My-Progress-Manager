@@ -58,7 +58,8 @@ def create_task(user_id, title, color, due_date):
                     "title": title,
                     "color": color,
                     "due_date": due_date,
-                    "is_completed": False
+                    "is_completed": False,
+                    "order_index" : 0
                 })
     except pg.Error as e:
         return jsonify({"Error: ": str(e)}), 400
