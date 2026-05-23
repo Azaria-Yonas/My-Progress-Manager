@@ -34,7 +34,6 @@ def ctasks():
     try:
         data = request.json
         title = data["title"]
-        description = data.get("description", "")        
         color = data["color"]
         due_date = data["due_date"]
         id = authenticate_userid(request)
