@@ -3,14 +3,16 @@ from flask import Flask, request
 from auth.auth import authenticate_userid
 from routes.login import login
 from routes.signup import signup
+from routes.profile import getme, signout
 from routes.tasks import fecth_tasks, create_task, delete_task
 from routes.streaks import fecth_streaks
 
 
-
-
  
 app = Flask(__name__)
+
+
+
 
 @app.route("/login", methods=["POST"])              # Login 
 def login_route():
@@ -19,6 +21,23 @@ def login_route():
 @app.route("/sigup", methods=["POST"])              # SignUp
 def signup_route_route():
     return signup()
+
+
+@app.route("/me", methods = ["GET"])                # Get Me
+def gme():
+    try:
+        id = authenticate_userid(request)
+        return getme(id)
+    except Exception as e:
+        return str(e), 400
+
+@app.route("/logout", methods = ["POST"])           # Sign Out
+def lout():
+    try:
+        id = authenticate_userid(request)
+        return signout(id)
+    except Exception as e:
+        return str(e), 400
 
 
 @app.route("/tasks", methods = ["GET"])             # Fetch Tasks
@@ -52,10 +71,6 @@ def dtask(id):
 
 
 
-
-
-
-
 @app.route("/streaks", methods = ["GET"])           # Fetch Streaks
 def fstreaks():
     try:
@@ -63,9 +78,6 @@ def fstreaks():
         return fecth_streaks(id)
     except Exception as e:
         return str(e), 400
-
-
-
 
 
 
