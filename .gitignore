@@ -74,3 +74,5 @@ desktop.ini
 *.md
 
 */__pycache__/
+
+global.d.ts
