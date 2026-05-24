@@ -3,7 +3,7 @@ from flask import Flask, request
 from auth.auth import authenticate_userid
 from routes.login import login
 from routes.signup import signup
-from routes.tasks import fecth_tasks, create_task
+from routes.tasks import fecth_tasks, create_task, delete_task
 from routes.streaks import fecth_streaks
 
 
@@ -40,6 +40,21 @@ def ctasks():
         return create_task(id, title, color, due_date)
     except Exception as e:
         return str(e), 400
+    
+    
+@app.route("/tasks/<id>", methods = ["DELETE"])      # Delete Task
+def dtask(id):
+    try:
+        user_id = authenticate_userid(request)
+        return delete_task(user_id, id)
+    except Exception as e:
+        return str(e), 400
+
+
+
+
+
+
 
 @app.route("/streaks", methods = ["GET"])           # Fetch Streaks
 def fstreaks():
