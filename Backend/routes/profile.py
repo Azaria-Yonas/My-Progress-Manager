@@ -28,9 +28,9 @@ def getme(id):
 
 
 
-def signout(id):
+def signout(token):
     try:
-        new_client().auth.sign_out(id)
-        return jsonify({"message: ": "Successful Signed Out"})       
+        new_client().auth.admin.sign_out(token, "global")
+        return jsonify({"message": "Successfully signed out"})
     except Exception as e:
         return jsonify({"Error: ": str(e)}), 400
