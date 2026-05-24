@@ -1,5 +1,5 @@
 # app.py
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from auth.auth import authenticate_userid
 from routes.login import login
 from routes.signup import signup
@@ -34,8 +34,11 @@ def gme():
 @app.route("/logout", methods = ["POST"])           # Sign Out
 def lout():
     try:
-        id = authenticate_userid(request)
-        return signout(id)
+        auth_header = request.headers.get("Authorization")
+        if not auth_header or authenticate_userid(request) is None:
+            return jsonify({"Error: ": "Unauthorized"}), 401
+        token = auth_header.split(" ")[1]
+        return signout(token)
     except Exception as e:
         return str(e), 400
 
