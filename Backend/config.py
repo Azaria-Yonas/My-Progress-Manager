@@ -16,3 +16,4 @@ DB_PORT= os.getenv("DB_PORT")
 # Supabase API config
 SUPABASE_URL= os.getenv("SUPABASE_URL")
 SUPABASE_KEY= os.getenv("SUPABASE_KEY")
+SUPABASE_ADMIN_KEY = os.getenv("SERVICE_ROLE_KEY")
