@@ -91,7 +91,7 @@ def delete_task(user_id, id):
                     WHERE user_id = %s AND id = %s
                 """,
                 (user_id,id))
-        return jsonify ({"Successfully Deleted Task"})
+        return jsonify({"message": "Successfully Deleted Task"})
     except pg.Error as e:
         return jsonify({"Error: ": str(e)})
 
