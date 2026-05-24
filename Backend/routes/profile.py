@@ -6,6 +6,7 @@ from clients.supabase_client import new_client
 
 def getme(id):
     try:
+        results = []
         with psycopg_connect() as conn:
             with conn.cursor() as curr:
                 curr.execute("""
@@ -13,7 +14,15 @@ def getme(id):
                     WHERE id = %s 
                 """,
                 (id,))
-        return jsonify({"message: ": "Successful Retrived User Meta Data"})
+                results = curr.fetchall()
+        created_at, meta_data = results[0]
+        return jsonify({
+            "id": id,
+            "email": meta_data["email"],
+            "firstName": meta_data["firstName"],
+            "lastName": meta_data["lastName"],
+            "created_at": created_at
+        })
     except pg.Error as e:
         return jsonify({"Error: " : str(e)}), 400
 
