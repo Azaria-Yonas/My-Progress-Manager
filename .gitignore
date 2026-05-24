@@ -76,3 +76,5 @@ desktop.ini
 */__pycache__/
 
 global.d.ts
+
+.mcp.json
