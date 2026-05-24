@@ -82,14 +82,15 @@ def update_task(id, **values):
     except pg.Error as e:
         return jsonify({"Error: ", str(e)})
     
-def delete_task(id):
+def delete_task(user_id, id):
     try:
         with psycopg_connect() as conn:
             with conn.cursor() as curr:
                 curr.execute("""
-                    DELETE FROM public.tasks WHERE id = %s
+                    DELETE FROM public.tasks 
+                    WHERE user_id = %s AND id = %s
                 """,
-                (id,))
+                (user_id,id))
         return jsonify ({"Successfully Deleted Task"})
     except pg.Error as e:
         return jsonify({"Error: ": str(e)})
