@@ -1,7 +1,7 @@
 from flask import jsonify
 import psycopg as pg
 from clients.psycopg_connect import psycopg_connect
-from clients.supabase_client import new_client
+from clients.supabase_client import admin_client
 
 
 def getme(id):
@@ -30,7 +30,7 @@ def getme(id):
 
 def signout(token):
     try:
-        new_client().auth.admin.sign_out(token, "global")
+        admin_client().auth.admin.sign_out(token, "global")
         return jsonify({"message": "Successfully signed out"})
     except Exception as e:
         return jsonify({"Error: ": str(e)}), 400
