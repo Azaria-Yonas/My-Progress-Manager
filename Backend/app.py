@@ -42,7 +42,7 @@ def ctasks():
         return str(e), 400
     
     
-@app.route("/tasks/<id>", method = ["DELETE"])      # Delete Task
+@app.route("/tasks/<id>", methods = ["DELETE"])      # Delete Task
 def dtask(id):
     try:
         user_id = authenticate_userid(request)
