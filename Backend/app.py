@@ -4,7 +4,7 @@ from auth.auth import authenticate_userid
 from routes.login import login
 from routes.signup import signup
 from routes.profile import getme, signout
-from routes.tasks import fecth_tasks, create_task, delete_task
+from routes.tasks import fecth_tasks, create_task, delete_task, complete_task
 from routes.streaks import fecth_streaks
 
 
@@ -14,16 +14,16 @@ app = Flask(__name__)
 
 
 
-@app.route("/login", methods=["POST"])              # Login 
+@app.route("/login", methods=["POST"])                  # Login 
 def login_route():
     return login()
 
-@app.route("/sigup", methods=["POST"])              # SignUp
+@app.route("/sigup", methods=["POST"])                  # SignUp
 def signup_route_route():
     return signup()
 
 
-@app.route("/me", methods = ["GET"])                # Get Me
+@app.route("/me", methods = ["GET"])                    # Get Me
 def gme():
     try:
         id = authenticate_userid(request)
@@ -31,7 +31,7 @@ def gme():
     except Exception as e:
         return str(e), 400
 
-@app.route("/logout", methods = ["POST"])           # Sign Out
+@app.route("/logout", methods = ["POST"])               # Sign Out
 def lout():
     try:
         auth_header = request.headers.get("Authorization")
@@ -43,7 +43,7 @@ def lout():
         return str(e), 400
 
 
-@app.route("/tasks", methods = ["GET"])             # Fetch Tasks
+@app.route("/tasks", methods = ["GET"])                 # Fetch Tasks
 def ftasks():
     try:
         id = authenticate_userid(request)
@@ -51,7 +51,7 @@ def ftasks():
     except Exception as e:
         return str(e), 400
     
-@app.route("/tasks", methods = ["POST"])            # Create Tasks
+@app.route("/tasks", methods = ["POST"])                # Create Tasks
 def ctasks():
     try:
         data = request.json
@@ -64,7 +64,7 @@ def ctasks():
         return str(e), 400
     
     
-@app.route("/tasks/<id>", methods = ["DELETE"])      # Delete Task
+@app.route("/tasks/<id>", methods = ["DELETE"])         # Delete Task
 def dtask(id):
     try:
         user_id = authenticate_userid(request)
@@ -72,9 +72,16 @@ def dtask(id):
     except Exception as e:
         return str(e), 400
 
+@app.route("task/<id>/complete", methods = ["POST"])    # Complete Task 
+def ctask(id):
+    try:
+        user_id = authenticate_userid(request)
+        return complete_task(user_id, id)
+    except Exception as e:
+        return str(e), 400
 
 
-@app.route("/streaks", methods = ["GET"])           # Fetch Streaks
+@app.route("/streaks", methods = ["GET"])               # Fetch Streaks
 def fstreaks():
     try:
         id = authenticate_userid(request)
