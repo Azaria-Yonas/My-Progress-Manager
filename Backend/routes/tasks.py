@@ -95,16 +95,15 @@ def delete_task(user_id, id):
     except pg.Error as e:
         return jsonify({"Error: ": str(e)})
 
-def complete_task(id):
+def complete_task(user_id, id):
     try:
-
         with psycopg_connect() as conn:
             with conn.cursor() as curr:
                 curr.execute("""
                     SELECT id, user_id, title, color, due_date FROM public.tasks
-                    WHERE id = %s
+                    WHERE id = %s AND user_id = %s
                 """,
-                (id,))
+                (id, user_id))
                 results = curr.fetchall()
                 curr.execute("""
                     INSERT INTO public.completed_tasks (id, user_id, title, color, due_date)
@@ -113,8 +112,9 @@ def complete_task(id):
                 results)
                 curr.execute("""
                     DELETE FROM public.tasks 
-                    WHERE id = %s;
-                """,(id,))
+                    WHERE id = %s AND user_id = %s
+                """,(id, user_id))
+                return jsonify({"message": "Successfully Completed Task"})
     except pg.Error as e:
         return jsonify({"Error": e})
-    return jsonify({"Hello"})
+    
