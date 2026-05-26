@@ -98,7 +98,6 @@ def delete_task(user_id, id):
         return jsonify({"Error: ": str(e)}), 400
 
 def complete_task(user_id, id):
-    task = []
     try:
         with psycopg_connect() as conn:
             with conn.cursor() as curr:
@@ -107,8 +106,7 @@ def complete_task(user_id, id):
                     WHERE id = %s AND user_id = %s
                 """,
                 (id, user_id))
-                task = curr.fetchall()
-
+                task = curr.fetchone()
                 if task is None:
                     return jsonify({"Error": "Task not found"}), 404
                 
@@ -125,6 +123,5 @@ def complete_task(user_id, id):
                 (id, user_id))
         return jsonify({"message": "Successfully Completed Task"})
     except pg.Error as e:
-        return jsonify({"Error": str(e),
-                        "tasks" : task}), 400
+        return jsonify({"Error": str(e)}), 400
     
