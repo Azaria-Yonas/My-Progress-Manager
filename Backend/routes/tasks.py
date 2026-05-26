@@ -106,16 +106,22 @@ def complete_task(user_id, id):
                     WHERE id = %s AND user_id = %s
                 """,
                 (id, user_id))
-                results = curr.fetchall()
+                task = curr.fetchall()
+
+                if task is None:
+                    return jsonify({"Error": "Task not found"}), 404
+                
                 curr.execute("""
                     INSERT INTO public.completed_tasks (id, user_id, title, color, due_date)
                     VALUES (%s, %s, %s, %s, %s);
                 """,
-                results)
+                task)
+                
                 curr.execute("""
                     DELETE FROM public.tasks 
                     WHERE id = %s AND user_id = %s
-                """,(id, user_id))
+                """,
+                (id, user_id))
         return jsonify({"message": "Successfully Completed Task"})
     except pg.Error as e:
         return jsonify({"Error": str(e)}), 400
