@@ -72,7 +72,7 @@ def dtask(id):
     except Exception as e:
         return str(e), 400
 
-@app.route("task/<id>/complete", methods = ["POST"])    # Complete Task 
+@app.route("/task/<id>/complete", methods = ["POST"])    # Complete Task 
 def ctask(id):
     try:
         user_id = authenticate_userid(request)
