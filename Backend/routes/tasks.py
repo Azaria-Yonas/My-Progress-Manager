@@ -29,11 +29,12 @@ def fecth_tasks(user_id):
                         "due_date": row[4], 
                         "order_index": row[5] or 0
                     })
+        return jsonify(results)
     except pg.Error as e:
         return jsonify({"Error: ": str(e)}), 400
 
 
-    return jsonify(results)
+    
 
 
 def create_task(user_id, title, color, due_date):
@@ -79,6 +80,7 @@ def update_task(id, **values):
                     WHERE id = %s
                 """,
                 (id,unravel(kwargs=values)))
+        return jsonify({"message": "Successfully Updated Task"})
     except pg.Error as e:
         return jsonify({"Error: ", str(e)})
     
@@ -93,28 +95,33 @@ def delete_task(user_id, id):
                 (user_id,id))
         return jsonify({"message": "Successfully Deleted Task"})
     except pg.Error as e:
-        return jsonify({"Error: ": str(e)})
+        return jsonify({"Error: ": str(e)}), 400
 
-def complete_task(id):
+def complete_task(user_id, id):
     try:
-
         with psycopg_connect() as conn:
             with conn.cursor() as curr:
                 curr.execute("""
                     SELECT id, user_id, title, color, due_date FROM public.tasks
-                    WHERE id = %s
+                    WHERE id = %s AND user_id = %s
                 """,
-                (id,))
-                results = curr.fetchall()
+                (id, user_id))
+                task = curr.fetchone()
+                if task is None:
+                    return jsonify({"Error": "Task not found"}), 404
+                
                 curr.execute("""
                     INSERT INTO public.completed_tasks (id, user_id, title, color, due_date)
                     VALUES (%s, %s, %s, %s, %s);
                 """,
-                results)
+                task)
+
                 curr.execute("""
                     DELETE FROM public.tasks 
-                    WHERE id = %s;
-                """,(id,))
+                    WHERE id = %s AND user_id = %s
+                """,
+                (id, user_id))
+        return jsonify({"message": "Successfully Completed Task"})
     except pg.Error as e:
-        return jsonify({"Error": e})
-    return jsonify({"Hello"})
+        return jsonify({"Error": str(e)}), 400
+    
