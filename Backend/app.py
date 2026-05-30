@@ -5,6 +5,7 @@ from routes.login import login
 from routes.signup import signup
 from routes.profile import getme, signout
 from routes.tasks import fecth_tasks, create_task, delete_task
+from routes.stats import tasks_analytics, streaks_analytics
 from routes.streaks import fecth_streaks
 
 
@@ -82,7 +83,24 @@ def fstreaks():
     except Exception as e:
         return str(e), 400
 
+@app.route("/stats/tasks", methods = ["GET"])
+def gctasks():
+    try:
+        id = authenticate_userid(request)
+        return tasks_analytics(id)
+    except Exception as e:
+        return str(e), 400
+    
 
+@app.route("/stats/streaks", methods = ["GET"])
+def gcstreaks():
+    try:
+        id = authenticate_userid(request)
+        return streaks_analytics(id)
+    except Exception as e:
+        return str(e), 400
+    
+    
 
 @app.route("/")
 def home():
