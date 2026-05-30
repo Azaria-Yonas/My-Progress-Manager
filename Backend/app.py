@@ -4,7 +4,7 @@ from auth.auth import authenticate_userid
 from routes.login import login
 from routes.signup import signup
 from routes.profile import getme, signout
-from routes.tasks import fecth_tasks, create_task, delete_task, complete_task, reorder_tasks
+from routes.tasks import fecth_tasks, create_task, delete_task, complete_task, undo_complete_task, reorder_tasks
 from routes.streaks import fecth_streaks, create_streak
 from routes.stats import tasks_analytics, streaks_analytics
 
@@ -43,7 +43,7 @@ def lout():
         return str(e), 400
 
 
-@app.route("/tasks", methods = ["GET"])                     # Fetch Tasks
+@app.route("/tasks", methods = ["GET"])                         # Fetch Tasks
 def ftasks():
     try:
         id = authenticate_userid(request)
@@ -51,7 +51,7 @@ def ftasks():
     except Exception as e:
         return str(e), 400
     
-@app.route("/tasks", methods = ["POST"])                    # Create Tasks
+@app.route("/tasks", methods = ["POST"])                        # Create Tasks
 def ctasks():
     try:
         data = request.json
@@ -64,7 +64,7 @@ def ctasks():
         return str(e), 400
     
     
-@app.route("/tasks/<id>", methods = ["DELETE"])             # Delete Task
+@app.route("/tasks/<id>", methods = ["DELETE"])                 # Delete Task
 def dtask(id):
     try:
         user_id = authenticate_userid(request)
@@ -72,15 +72,23 @@ def dtask(id):
     except Exception as e:
         return str(e), 400
 
-@app.route("/tasks/<id>/complete", methods = ["POST"])      # Complete Task 
+@app.route("/tasks/<id>/complete", methods = ["POST"])          # Complete Task 
 def ctask(id):
     try:
         user_id = authenticate_userid(request)
         return complete_task(user_id, id)
     except Exception as e:
         return str(e), 400
+@app.route("/tasks/<id>/undo-complete", methods = ["POST"])     # Undo-Complete Task 
+def uctask(id):
+    try:
+        user_id = authenticate_userid(request)
+        return undo_complete_task(user_id, id)
+    except Exception as e:
+        return str(e), 400
+
     
-@app.route("/tasks/reorder", methods = ["PATCH"])           # Reorder Tasks
+@app.route("/tasks/reorder", methods = ["PATCH"])               # Reorder Tasks
 def rtask():
     try:
         data = request.json
@@ -89,9 +97,9 @@ def rtask():
         return reorder_tasks(user_id, tasks)
     except Exception as e:
         return str(e), 400
+    
 
-
-@app.route("/streaks", methods = ["GET"])                   # Fetch Streaks
+@app.route("/streaks", methods = ["GET"])                       # Fetch Streaks
 def fstreaks():
     try:
         id = authenticate_userid(request)
@@ -99,7 +107,7 @@ def fstreaks():
     except Exception as e:
         return str(e), 400
     
-@app.route("/streaks", methods = ["POST"])                  # Create Streaks
+@app.route("/streaks", methods = ["POST"])                      # Create Streaks
 def cstreaks():
     try:
         data = request.json
@@ -109,7 +117,7 @@ def cstreaks():
         return create_streak(id, title, duration_seconds)
     except Exception as e:
         return str(e), 400
-
+    
 @app.route("/stats/tasks", methods = ["GET"])
 def gctasks():
     try:
@@ -119,7 +127,7 @@ def gctasks():
         return str(e), 400
     
 
-@app.route("/stats/streaks", methods = ["GET"])
+@app.route("/stats/streaks", methods = ["GET"])                 # Streaks Analytics
 def gcstreaks():
     try:
         id = authenticate_userid(request)
