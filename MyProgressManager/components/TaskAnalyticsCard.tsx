@@ -12,7 +12,7 @@ type ChartMode = "pie" | "bar";
 
 interface CompletedTask {
   id: string;
-  user_id: string;
+  user_id?: string;
   title: string;
   color: string | null;
   due_date: string | null;
