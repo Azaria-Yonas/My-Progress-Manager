@@ -37,7 +37,8 @@ def streaks_analytics(id):
         with psycopg_connect() as conn:
             with conn.cursor() as curr:
                 curr.execute("""
-                    SELECT id, title, streak_count, duration_seconds, created_at, completed_at, total_intervals, failed_intervals, calendar_data
+                    SELECT id, title, streak_count, duration_seconds, created_at, completed_at, 
+                             total_intervals, successful_intervals failed_intervals, calendar_data
                     FROM public.completed_streaks
                     WHERE user_id = %s
                 """,
