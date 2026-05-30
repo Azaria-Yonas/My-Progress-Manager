@@ -25,6 +25,7 @@ def tasks_analytics(id):
                         "due_date": row[4], 
                         "completed_at": row[5]
                     })
+        return results
     except pg.Error as e:
         return jsonify({"Error: ": str(e)})
         
