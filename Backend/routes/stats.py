@@ -22,8 +22,8 @@ def tasks_analytics(id):
                         "id": row[0], 
                         "title": row[1], 
                         "color": row[2], 
-                        "due_date": row[4], 
-                        "completed_at": row[5]
+                        "due_date": row[3], 
+                        "completed_at": row[4]
                     })
         return results
     except pg.Error as e:
