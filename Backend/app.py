@@ -5,9 +5,8 @@ from routes.login import login
 from routes.signup import signup
 from routes.profile import getme, signout
 from routes.tasks import fecth_tasks, create_task, delete_task
-from routes.stats import tasks_analytics, streaks_analytics
 from routes.streaks import fecth_streaks
-
+from routes.stats import tasks_analytics, streaks_analytics
 
  
 app = Flask(__name__)
