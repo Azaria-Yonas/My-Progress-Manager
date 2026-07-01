@@ -1,61 +1,62 @@
 import { StyleSheet } from "react-native";
+import { scale, verticalScale, fontScale } from "../utils/responsive";
 
 export const createStatsStreakReportStyles = (theme: any) =>
   StyleSheet.create({
     cardContainer: {
       backgroundColor: theme.card,
-      padding: 20,
-      borderRadius: 20,
-      marginBottom: 25,
-
+      padding: scale(20),
+      borderRadius: scale(20),
+      marginBottom: verticalScale(25),
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: theme.border,
       shadowColor: theme.shadowcolor,
-      shadowOpacity: 0.12,
-      shadowRadius: 8,
-      shadowOffset: { width: 0, height: 4 },
-      elevation: 6,
+      shadowOpacity: 0.1,
+      shadowRadius: scale(8),
+      shadowOffset: { width: 0, height: verticalScale(4) },
+      elevation: 4,
     },
 
     cardTitle: {
-      fontSize: 26,
+      fontSize: fontScale(26),
       fontWeight: "700",
       color: theme.text,
-      marginBottom: 12,
+      marginBottom: verticalScale(12),
     },
 
     innerScroll: {
-      maxHeight: 300,
+      maxHeight: verticalScale(300),
     },
 
     reportItem: {
-      backgroundColor: theme.primary + "20",
+      backgroundColor: theme.primary + "1F",
 
-      padding: 16,
-      borderRadius: 16,
+      padding: scale(16),
+      borderRadius: scale(16),
 
-      backdropFilter: "blur(20px)",
       borderWidth: 1,
-      borderColor: theme.primary + "40",
+      borderColor: theme.primary + "3D",
 
       shadowColor: theme.primary,
-      shadowOpacity: 0.25,
-      shadowOffset: { width: 0, height: 8 },
-      shadowRadius: 16,
-      elevation: 10,
+      shadowOpacity: 0.22,
+      shadowOffset: { width: 0, height: verticalScale(6) },
+      shadowRadius: scale(14),
+      elevation: 6,
 
-      marginBottom: 16,
+      marginBottom: verticalScale(16),
     },
 
     reportTitle: {
-      fontSize: 20,
+      fontSize: fontScale(20),
       fontWeight: "700",
       color: theme.text,
-      marginBottom: 6,
+      marginBottom: verticalScale(6),
     },
 
     reportText: {
-      fontSize: 16,
+      fontSize: fontScale(16),
       color: theme.text,
-      marginBottom: 4,
+      marginBottom: verticalScale(4),
     },
 
     highlight: {
@@ -64,7 +65,7 @@ export const createStatsStreakReportStyles = (theme: any) =>
     },
 
     failHighlight: {
-      color: "#ff4c4c",
+      color: theme.danger,
       fontWeight: "700",
     },
   });

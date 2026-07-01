@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import { scale, verticalScale, fontScale } from "../utils/responsive";
 
 export const createAuthModalStyles = (theme: any, isDark: boolean) =>
   StyleSheet.create({
@@ -6,59 +7,63 @@ export const createAuthModalStyles = (theme: any, isDark: boolean) =>
       flex: 1,
       backgroundColor: "#00000088",
       justifyContent: "center",
-      padding: 20,
+      padding: scale(20),
     },
 
     box: {
-      borderRadius: 20,
-      padding: 40,
-      backgroundColor: theme.background,
+      borderRadius: scale(20),
+      padding: scale(28),
+      backgroundColor: theme.surface,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: theme.border,
       shadowColor: theme.shadowcolor,
-      shadowOpacity: 0.15,
-      shadowRadius: 10,
-      shadowOffset: { width: 0, height: 4 },
-      elevation: 6,
+      shadowOpacity: 0.18,
+      shadowRadius: scale(14),
+      shadowOffset: { width: 0, height: verticalScale(6) },
+      elevation: 10,
     },
 
     title: {
-      fontSize: 26,
+      fontSize: fontScale(26),
       fontWeight: "700",
-      marginBottom: 20,
+      marginBottom: verticalScale(20),
       textAlign: "center",
       color: theme.text,
     },
 
     input: {
-      padding: 12,
-      borderRadius: 10,
-      marginBottom: 12,
-    backgroundColor: theme.card,
+      padding: scale(12),
+      borderRadius: scale(10),
+      marginBottom: verticalScale(12),
+      backgroundColor: theme.input,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: theme.border,
       color: theme.text,
     },
 
     button: {
-      padding: 14,
-      borderRadius: 10,
-      marginVertical: 10,
+      padding: scale(14),
+      borderRadius: scale(10),
+      marginVertical: verticalScale(10),
       backgroundColor: theme.primary,
     },
 
     buttonText: {
-      color: "#fff",
+      color: theme.onPrimary,
       fontWeight: "600",
       textAlign: "center",
     },
 
     link: {
       textAlign: "center",
-      marginTop: 10,
-      fontSize: 14,
+      marginTop: verticalScale(10),
+      fontSize: fontScale(14),
       color: theme.primary,
     },
 
     closeText: {
-      marginTop: 20,
+      marginTop: verticalScale(20),
       textAlign: "center",
-      color: theme.text,
+      color: theme.textMuted,
     },
   });

@@ -1,125 +1,71 @@
 // styles/TaskModalStyles.ts
 import { StyleSheet } from "react-native";
+import { scale, verticalScale } from "../utils/responsive";
 
 export const createTaskModalStyles = (theme: any) =>
   StyleSheet.create({
     container: {
-      padding: 18,
-      marginHorizontal: 16,
-      borderRadius: 10,
-      backgroundColor: theme.card,          
-      shadowColor: theme.shadowcolor,        
-      shadowOpacity: 0.1,
-      shadowRadius: 2,
-      elevation: 4,
+      padding: scale(20),
+      marginHorizontal: scale(16),
+      borderRadius: scale(16),
+      backgroundColor: theme.surface,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: theme.border,
+      shadowColor: theme.shadowcolor,
+      shadowOpacity: 0.12,
+      shadowRadius: scale(12),
+      shadowOffset: { width: 0, height: verticalScale(6) },
+      elevation: 8,
     },
 
     title: {
-      marginTop: 1,
-      marginBottom: 10,
+      marginTop: verticalScale(2),
+      marginBottom: verticalScale(12),
       textAlign: "center",
-      color: theme.text,                    
+      color: theme.text,
     },
 
     input: {
-      marginBottom: 12,
-      backgroundColor: theme.input,     
+      marginBottom: verticalScale(12),
+      backgroundColor: theme.input,
     },
 
     row: {
       flexDirection: "row",
       justifyContent: "flex-end",
-      marginTop: 10,
+      marginTop: verticalScale(10),
     },
 
     button: {
-      marginLeft: 8,
+      marginLeft: scale(8),
     },
 
     label: {
-      marginBottom: 8,
-      color: theme.text,                    
+      marginBottom: verticalScale(8),
+      color: theme.text,
     },
 
     colorRow: {
       flexDirection: "row",
       flexWrap: "wrap",
-      marginBottom: 15,
-      marginTop: 10,
+      marginBottom: verticalScale(15),
+      marginTop: verticalScale(10),
       alignItems: "center",
       justifyContent: "center",
       width: "90%",
     },
-    
 
     colorButton: {
-      marginBottom: 6,
-      width: 38,
-      height: 38,
-      borderRadius: 30,
+      marginBottom: verticalScale(6),
+      width: scale(38),
+      height: scale(38),
+      borderRadius: scale(19),
       borderWidth: 1.5,
-      borderColor: theme.text + "40",       
+      borderColor: theme.text + "40",
     },
 
     datePickerContainer: {
       alignItems: "center",
-      marginVertical: 10,
+      marginVertical: verticalScale(10),
     },
   });
-
-
-
-
-// // styles/TaskModalStyles.ts
-// import { StyleSheet } from "react-native";
-
-// export const styles = StyleSheet.create({
-//   container: {
-//     padding: 16,
-//     marginHorizontal: 16,
-//     borderRadius: 8,
-//   },
-
-//   title: {
-//     marginBottom: 16,
-//     textAlign: "center",
-//   },
-
-//   input: {
-//     marginBottom: 12,
-//   },
-
-//   row: {
-//     flexDirection: "row",
-//     justifyContent: "flex-end",
-//   },
-
-//   button: {
-//     marginLeft: 8,
-//   },
-
-//   label: {
-//     marginBottom: 8,
-//   },
-
-//   colorRow: {
-//     flexDirection: "row",
-//     flexWrap: "wrap",
-//     marginBottom: 15,
-//     marginTop: 10,
-//     alignItems: "center",
-//     justifyContent: "center",
-//     width: "90%",
-//   },
-
-//   colorButton: {
-//     marginBottom: 6,
-//     width: 38,
-//     height: 38,
-//   },
-
-//   datePickerContainer: {
-//     alignItems: "center",
-//     marginVertical: 10,
-//   },
-// });

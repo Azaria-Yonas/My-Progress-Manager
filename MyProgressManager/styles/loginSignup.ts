@@ -1,13 +1,14 @@
 import { StyleSheet } from "react-native";
+import { scale, verticalScale, fontScale } from "../utils/responsive";
 
 export const createLoginSignupStyles = (theme: any) =>
   StyleSheet.create({
     container: {
       flex: 1,
       alignItems: "center",
-      paddingHorizontal: 20,
-      paddingBottom: 30,
-      paddingTop: 50,
+      paddingHorizontal: scale(20),
+      paddingBottom: verticalScale(30),
+      paddingTop: verticalScale(50),
       justifyContent: "space-between",
       backgroundColor: "transparent",
     },
@@ -16,10 +17,10 @@ export const createLoginSignupStyles = (theme: any) =>
       marginTop: 0,
       width: "50%",
       height: "20%",
-      borderRadius: 20,
+      borderRadius: scale(20),
       overflow: "hidden",
       backgroundColor: "transparent",
-      marginBottom: 30,
+      marginBottom: verticalScale(30),
     },
 
     logoImage: {
@@ -30,23 +31,23 @@ export const createLoginSignupStyles = (theme: any) =>
     welcomeBox: {
       width: "95%",
       flex: 1,
-      borderRadius: 25,
+      borderRadius: scale(24),
       alignSelf: "center",
       shadowColor: theme.shadowcolor,
-      shadowOpacity: 0.06,
-      shadowOffset: { width: 0, height: 2 },
-      shadowRadius: 10,
+      shadowOpacity: 0.08,
+      shadowOffset: { width: 0, height: verticalScale(2) },
+      shadowRadius: scale(10),
       elevation: 4,
     },
 
     welcomeInner: {
       flex: 1,
-      borderRadius: 25,
-      padding: 20,
+      borderRadius: scale(24),
+      padding: scale(20),
       overflow: "hidden",
-
-      backgroundColor: theme.input,
-
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: theme.border,
+      backgroundColor: theme.surface,
     },
 
     welcomeScroll: {
@@ -54,45 +55,39 @@ export const createLoginSignupStyles = (theme: any) =>
     },
 
     welcomeText: {
-      fontSize: 29,
+      fontSize: fontScale(28),
       fontWeight: "700",
-      marginBottom: 10,
+      marginBottom: verticalScale(10),
       textAlign: "center",
       color: theme.text,
     },
 
     introText: {
-      fontSize: 14,
+      fontSize: fontScale(14),
       fontFamily: "RobotoThin",
-      lineHeight: 18,
+      lineHeight: fontScale(20),
       textAlign: "justify",
-      color: theme.text,
-      opacity: 0.85,
+      color: theme.textMuted,
     },
 
     getStartedButton: {
-      paddingVertical: 15,
-      paddingHorizontal: 40,
-      borderRadius: 30,
-      marginTop: 30,
-      marginBottom: 20,
-
-      backgroundColor: theme.primary ,
-
+      paddingVertical: verticalScale(15),
+      paddingHorizontal: scale(40),
+      borderRadius: scale(30),
+      marginTop: verticalScale(30),
+      marginBottom: verticalScale(20),
+      backgroundColor: theme.primary,
       shadowColor: theme.primary,
       shadowOpacity: 0.35,
-      shadowOffset: { width: 0, height: 6 },
-      shadowRadius: 12,
-      elevation: 10,
-
-      overflow: "hidden",
-      opacity: 0.97,
+      shadowOffset: { width: 0, height: verticalScale(6) },
+      shadowRadius: scale(12),
+      elevation: 8,
     },
 
     getStartedButtonText: {
-      fontSize: 18,
-      fontWeight: "500",
-      color: theme.text,
+      fontSize: fontScale(18),
+      fontWeight: "600",
+      color: theme.onPrimary,
       textAlign: "center",
     },
   });
