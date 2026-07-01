@@ -1,23 +1,26 @@
 import { StyleSheet } from "react-native";
+import { scale, verticalScale, fontScale } from "../utils/responsive";
 
 export const createHomeScreenStyles = (theme: any) =>
   StyleSheet.create({
     headerContainer: {
       position: "absolute",
-      opacity: 0.93,
+      opacity: 0.96,
       top: 0,
       left: 0,
       right: 0,
-      backgroundColor: theme.background, 
+      backgroundColor: theme.background,
       zIndex: 10,
       elevation: 6,
-      paddingHorizontal: 10,
-      paddingTop: 60,
-      paddingBottom: 1,
+      paddingHorizontal: scale(16),
+      paddingTop: verticalScale(60),
+      paddingBottom: verticalScale(6),
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: theme.border,
       shadowColor: theme.shadowcolor,
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.12,
-      shadowRadius: 6,
+      shadowOffset: { width: 0, height: verticalScale(4) },
+      shadowOpacity: 0.1,
+      shadowRadius: scale(6),
     },
 
     headerRow: {
@@ -27,61 +30,59 @@ export const createHomeScreenStyles = (theme: any) =>
     },
 
     title: {
-      fontSize: 62,
-      fontWeight: "bold",
+      fontSize: fontScale(58),
+      fontWeight: "700",
+      letterSpacing: -0.5,
       textAlign: "left",
-      color: theme.text, 
+      color: theme.text,
     },
 
     container: {
       flex: 1,
-      backgroundColor: theme.background, 
-      paddingHorizontal: 15,
+      backgroundColor: theme.background,
+      paddingHorizontal: scale(16),
     },
 
     item: {
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
-      paddingVertical: 2,
-      paddingHorizontal: 150,
-      borderRadius: 12,
+      paddingVertical: verticalScale(12),
+      paddingHorizontal: scale(16),
+      borderRadius: scale(12),
       borderWidth: 1,
-      borderColor: "#ccc",
+      borderColor: theme.border,
+      backgroundColor: theme.card,
     },
 
     itemText: {
-      fontSize: 20,
-      color: theme.text, 
+      fontSize: fontScale(17),
+      color: theme.text,
     },
 
     delete: {
-      fontSize: 20,
-      color: theme.danger, 
+      fontSize: fontScale(17),
+      color: theme.danger,
     },
 
     addCircleButton: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
+      width: scale(42),
+      height: scale(42),
+      borderRadius: scale(21),
       justifyContent: "center",
       alignItems: "center",
-      backgroundColor: theme.primary + "87",  
-
+      backgroundColor: theme.primary,
       shadowColor: theme.primary,
       shadowOpacity: 0.35,
-      shadowOffset: { width: 0, height: 6 },
-      shadowRadius: 12,
-      elevation: 10,
-      overflow: "hidden",
-      opacity: 0.97,
-
+      shadowOffset: { width: 0, height: verticalScale(4) },
+      shadowRadius: scale(10),
+      elevation: 8,
     },
 
     addButtonText: {
-      color: theme.text, 
-      fontSize: 28,
-      lineHeight: 28,
+      color: theme.onPrimary,
+      fontSize: fontScale(26),
+      lineHeight: fontScale(28),
       textAlign: "center",
     },
   });

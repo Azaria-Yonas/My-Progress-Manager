@@ -197,8 +197,8 @@ const ProfileScreen = () => {
             onPress={openLogoutDialog}
             style={[styles.logoutButton, { backgroundColor: theme.primary }]}
           >
-            <MaterialIcons name="logout" size={22} color={theme.text} />
-            <Text style={{ color: theme.text, marginLeft: 8 }}>Logout</Text>
+            <MaterialIcons name="logout" size={22} color={theme.onPrimary} />
+            <Text style={{ color: theme.onPrimary, marginLeft: 8 }}>Logout</Text>
           </TouchableOpacity>
         </View>
 
@@ -235,7 +235,7 @@ const ProfileScreen = () => {
                     { backgroundColor: theme.primary },
                   ]}
                 >
-                  <Text style={{ color: theme.text }}>Logout</Text>
+                  <Text style={{ color: theme.onPrimary }}>Logout</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -279,7 +279,7 @@ const SettingButton = ({ label, active, onPress, styles }: any) => (
     onPress={onPress}
     style={[styles.settingButton, active && styles.settingButtonActive]}
   >
-    <Text style={styles.settingButtonText}>{label}</Text>
+    <Text style={[styles.settingButtonText, active && styles.settingButtonTextActive]}>{label}</Text>
   </TouchableOpacity>
 );
 
