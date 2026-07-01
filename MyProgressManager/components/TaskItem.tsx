@@ -14,7 +14,8 @@ import { IconButton } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
 import { useThemeMode } from "../context/ThemeContext";
 import { getContrastTextColor } from "../constants/Colors";
-import { useTypography } from "../context/TypographyContext"; 
+import { useTypography } from "../context/TypographyContext";
+import { scale, verticalScale } from "../utils/responsive";
 
 export type Task = {
   id: string;
@@ -118,11 +119,11 @@ function createTaskItemStyles(
       flexDirection: "row",
       alignItems: "center",
       backgroundColor: task.color,
-      paddingHorizontal: 10,
-      paddingVertical: 10,
-      borderRadius: 12,
-      marginVertical: 6,
-      marginHorizontal: 15,
+      paddingHorizontal: scale(10),
+      paddingVertical: verticalScale(10),
+      borderRadius: scale(12),
+      marginVertical: verticalScale(6),
+      marginHorizontal: scale(16),
       opacity: hovered ? 0.9 : 1,
       borderWidth: task.completed ? 2 : 0,
       borderColor: task.completed ? theme.success : "transparent",

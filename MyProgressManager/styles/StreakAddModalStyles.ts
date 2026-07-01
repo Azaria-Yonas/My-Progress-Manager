@@ -1,24 +1,32 @@
 // styles/StreakAddModalStyles.ts
 import { StyleSheet } from "react-native";
+import { scale, verticalScale, fontScale } from "../utils/responsive";
 
 export const createStreakAddModalStyles = (theme: any, fontSize: any, fontWeight: any) =>
   StyleSheet.create({
     container: {
       backgroundColor: theme.surface,
-      marginHorizontal: 20,
-      padding: 20,
-      borderRadius: 16,
+      marginHorizontal: scale(20),
+      padding: scale(20),
+      borderRadius: scale(16),
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: theme.border,
+      shadowColor: theme.shadowcolor,
+      shadowOpacity: 0.12,
+      shadowRadius: scale(12),
+      shadowOffset: { width: 0, height: verticalScale(6) },
+      elevation: 8,
     },
 
     title: {
       color: theme.text,
       fontSize: fontSize(26),
       fontWeight: fontWeight(),
-      marginBottom: 20,
+      marginBottom: verticalScale(20),
     },
 
     input: {
-      marginBottom: 20,
+      marginBottom: verticalScale(20),
       backgroundColor: "transparent",
     },
 
@@ -26,13 +34,13 @@ export const createStreakAddModalStyles = (theme: any, fontSize: any, fontWeight
       color: theme.text,
       fontSize: fontSize(18),
       fontWeight: fontWeight(),
-      marginBottom: 10,
+      marginBottom: verticalScale(10),
     },
 
     pickerRow: {
       flexDirection: "row",
       justifyContent: "space-between",
-      marginBottom: 5,
+      marginBottom: verticalScale(5),
     },
 
     pickerColumn: {
@@ -41,21 +49,21 @@ export const createStreakAddModalStyles = (theme: any, fontSize: any, fontWeight
     },
 
     numberDisplay: {
-      fontSize: 24,
+      fontSize: fontScale(24),
       color: theme.text,
       fontWeight: "600",
-      marginVertical: 1,
+      marginVertical: verticalScale(1),
     },
 
     bracketButton: {
-      paddingHorizontal: 14,
-      paddingVertical: 2,
+      paddingHorizontal: scale(14),
+      paddingVertical: verticalScale(2),
       alignItems: "center",
       justifyContent: "center",
     },
 
     bracketButtonTextPrimary: {
-      fontSize: 30,
+      fontSize: fontScale(30),
       fontWeight: "bold",
       color: theme.primary,
     },
@@ -63,10 +71,10 @@ export const createStreakAddModalStyles = (theme: any, fontSize: any, fontWeight
     actionRow: {
       flexDirection: "row",
       justifyContent: "flex-end",
-      marginTop: 10,
+      marginTop: verticalScale(10),
     },
 
     addButton: {
-      marginLeft: 12,
+      marginLeft: scale(12),
     },
   });

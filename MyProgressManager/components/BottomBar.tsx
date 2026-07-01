@@ -4,6 +4,7 @@ import { Feather } from "@expo/vector-icons";
 import { useThemeMode } from "../context/ThemeContext";
 import { useRouter, useSegments } from "expo-router";
 import Animated, { useAnimatedStyle, withSpring } from "react-native-reanimated";
+import { scale, verticalScale } from "../utils/responsive";
 
 type IconName = keyof typeof Feather.glyphMap;
 
@@ -50,8 +51,8 @@ export default function BottomBar() {
             <Animated.View style={animatedStyle}>
               <Feather
                 name={iconName}
-                size={28}
-                color={isActive ? theme.text : theme.text + "CC"}
+                size={scale(26)}
+                color={isActive ? theme.onPrimary : theme.onPrimary + "B0"}
               />
             </Animated.View>
           </TouchableOpacity>
@@ -65,21 +66,20 @@ const createStyles = (theme: any) =>
   StyleSheet.create({
     wrapper: {
       position: "absolute",
-      bottom: 30,
+      bottom: verticalScale(30),
       width: "90%",
       alignSelf: "center",
 
-      backgroundColor: theme.primary + "C8", 
-      borderRadius: 30,
-      paddingVertical: 12,
+      backgroundColor: theme.primary,
+      borderRadius: scale(28),
+      paddingVertical: verticalScale(12),
 
       shadowColor: theme.primary,
       shadowOpacity: 0.35,
-      shadowOffset: { width: 0, height: 6 },
-      shadowRadius: 12,
+      shadowOffset: { width: 0, height: verticalScale(6) },
+      shadowRadius: scale(12),
       elevation: 10,
 
-      opacity: 1,
       flexDirection: "row",
       justifyContent: "space-around",
       alignItems: "center",

@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import { scale, verticalScale, fontScale } from "../utils/responsive";
 
 export const createStreaksScreenStyles = (theme: any) =>
   StyleSheet.create({
@@ -7,17 +8,19 @@ export const createStreaksScreenStyles = (theme: any) =>
       top: 0,
       left: 0,
       right: 0,
-      opacity: 0.93,
+      opacity: 0.96,
       backgroundColor: theme.background,
       zIndex: 10,
       elevation: 6,
-      paddingHorizontal: 10,
-      paddingTop: 60,
-      paddingBottom: 1,
+      paddingHorizontal: scale(16),
+      paddingTop: verticalScale(60),
+      paddingBottom: verticalScale(6),
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: theme.border,
       shadowColor: theme.shadowcolor,
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.12,
-      shadowRadius: 6,
+      shadowOffset: { width: 0, height: verticalScale(4) },
+      shadowOpacity: 0.1,
+      shadowRadius: scale(6),
     },
 
     headerRow: {
@@ -27,82 +30,82 @@ export const createStreaksScreenStyles = (theme: any) =>
     },
 
     title: {
-      fontSize: 62,
-      fontWeight: "bold",
+      fontSize: fontScale(58),
+      fontWeight: "700",
+      letterSpacing: -0.5,
       textAlign: "left",
       color: theme.text,
     },
 
     container: {
       flex: 1,
-      paddingHorizontal: 15,
+      paddingHorizontal: scale(16),
     },
 
     scrollContent: {
-      paddingTop: 140,
-      paddingBottom: 80,
+      paddingTop: verticalScale(140),
+      paddingBottom: verticalScale(80),
     },
 
     streakCard: {
       backgroundColor: theme.card,
-      padding: 20,
-      borderRadius: 15,
-      marginBottom: 20,
+      padding: scale(20),
+      borderRadius: scale(16),
+      marginBottom: verticalScale(20),
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: theme.border,
       shadowColor: theme.shadowcolor,
-      shadowOpacity: 0.12,
-      shadowOffset: { width: 0, height: 4 },
-      shadowRadius: 8,
+      shadowOpacity: 0.1,
+      shadowOffset: { width: 0, height: verticalScale(4) },
+      shadowRadius: scale(8),
       elevation: 4,
     },
 
     streakTitle: {
-      fontSize: 20,
+      fontSize: fontScale(20),
       fontWeight: "600",
       color: theme.text,
     },
 
     streakTimer: {
-      fontSize: 28,
+      fontSize: fontScale(28),
       fontWeight: "700",
       color: theme.primary,
-      marginTop: 10,
+      marginTop: verticalScale(10),
       textAlign: "center",
     },
 
     streakButton: {
-      marginTop: 20,
-      paddingVertical: 12,
-      borderRadius: 12,
+      marginTop: verticalScale(20),
+      paddingVertical: verticalScale(12),
+      borderRadius: scale(12),
       alignItems: "center",
     },
 
     streakButtonText: {
-      fontSize: 18,
+      fontSize: fontScale(18),
       fontWeight: "600",
       color: theme.text,
     },
 
     addCircleButton: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
+      width: scale(42),
+      height: scale(42),
+      borderRadius: scale(21),
       justifyContent: "center",
       alignItems: "center",
-      backgroundColor: theme.primary + "87",
-
+      backgroundColor: theme.primary,
       shadowColor: theme.primary,
       shadowOpacity: 0.35,
-      shadowOffset: { width: 0, height: 6 },
-      shadowRadius: 12,
-      elevation: 10,
-      overflow: "hidden",
-      opacity: 0.97,
+      shadowOffset: { width: 0, height: verticalScale(4) },
+      shadowRadius: scale(10),
+      elevation: 8,
     },
 
     addButtonText: {
-      color: theme.text,
-      fontSize: 28,
-      lineHeight: 28,
+      color: theme.onPrimary,
+      fontSize: fontScale(26),
+      lineHeight: fontScale(28),
       textAlign: "center",
     },
   });

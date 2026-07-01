@@ -9,18 +9,27 @@ import React, {
 import { MD3LightTheme, MD3DarkTheme } from "react-native-paper";
 import { useColorScheme } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { LightColors, DarkColors } from "../constants/Colors";
 
 type ThemeMode = "light" | "dark" | "system";
 
 interface ThemeContextType {
   theme: {
     primary: string;
+    primaryPressed: string;
+    primarySoft: string;
+    accent: string;
+    onPrimary: string;
     background: string;
+    surface: string;
+    card: string;
+    input: string;
+    border: string;
     text: string;
+    textMuted: string;
     success: string;
     danger: string;
     shadowcolor: string;
-    card: string;
   };
   paperTheme: any;
   bgImage: null; 
@@ -51,27 +60,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     currentTheme === "dark" ||
     (currentTheme === "system" && systemScheme === "dark");
 
-  const theme = dark
-    ? {
-        primary: "#5a57ba",
-        background: "#212121ff",
-        text: "#FFFFFF",
-        input: "#373737ff",
-        success: "#2ecc71",
-        danger: "#e74c3c",
-        shadowcolor: "#FFF",
-        card: "#3e3e3eff",
-      }
-    : {
-        primary: "#6AB5DE",
-        background: "#FFF",
-        text: "#212121",
-        input: "#eaeaeaff",
-        success: "#2ecc71",
-        danger: "#e74c3c",
-        shadowcolor: "#000000",
-        card: "#dedede",
-      };
+  const theme = dark ? DarkColors : LightColors;
 
   const paperTheme = {
     ...(dark ? MD3DarkTheme : MD3LightTheme),
