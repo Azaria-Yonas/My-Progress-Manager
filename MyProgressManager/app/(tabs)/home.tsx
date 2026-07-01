@@ -14,6 +14,7 @@ import { useRouter } from "expo-router";
 import { TasksService } from "../../services/tasks";
 import BottomBar from "../../components/BottomBar";
 import { useTypography } from "../../context/TypographyContext";
+import { scale, verticalScale, fontScale } from "../../utils/responsive";
 
 export default function Home() {
   const { user, initializing } = useAuth();
@@ -218,7 +219,7 @@ export default function Home() {
         scrollEventThrottle={16}
         activationDistance={30}
         onScrollOffsetChange={(offsetY) => scrollY.setValue(offsetY)}
-        contentContainerStyle={{ paddingTop: 140, paddingBottom: 120 }}
+        contentContainerStyle={{ paddingTop: verticalScale(140), paddingBottom: verticalScale(120) }}
       />
 
       <TaskAddModal
@@ -232,19 +233,23 @@ export default function Home() {
           onPress={handleUndo}
           style={{
             position: "absolute",
-            bottom: 80,
+            bottom: verticalScale(100),
             alignSelf: "center",
             backgroundColor: theme.primary,
-            paddingVertical: 14,
-            paddingHorizontal: 32,
-            borderRadius: 30,
-            elevation: 5,
+            paddingVertical: verticalScale(14),
+            paddingHorizontal: scale(32),
+            borderRadius: scale(30),
+            shadowColor: theme.primary,
+            shadowOpacity: 0.35,
+            shadowOffset: { width: 0, height: verticalScale(4) },
+            shadowRadius: scale(10),
+            elevation: 8,
           }}
         >
           <Text
             style={{
-              color: "white",
-              fontSize: 18,
+              color: theme.onPrimary,
+              fontSize: fontScale(18),
               fontWeight: "700",
               textAlign: "center",
             }}
