@@ -7,7 +7,8 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { useThemeMode } from "../context/ThemeContext";
-import { createHomeScreenStyles } from "../styles/HomeScreenStyles"; 
+import { createHomeScreenStyles } from "../styles/HomeScreenStyles";
+import { verticalScale, fontScale } from "../utils/responsive";
 
 interface ShrinkingHeaderProps {
   scrollY: SharedValue<number>;
@@ -23,12 +24,12 @@ const ShrinkingHeader: React.FC<ShrinkingHeaderProps> = ({
   const styles = createHomeScreenStyles(theme);
 
   const headerAnimatedStyle = useAnimatedStyle(() => ({
-    height: interpolate(scrollY.value, [0, 80], [120, 70], "clamp"),
-    paddingVertical: interpolate(scrollY.value, [0, 80], [15, 5], "clamp"),
+    height: interpolate(scrollY.value, [0, 80], [verticalScale(120), verticalScale(70)], "clamp"),
+    paddingVertical: interpolate(scrollY.value, [0, 80], [verticalScale(15), verticalScale(5)], "clamp"),
   }));
 
   const titleAnimatedStyle = useAnimatedStyle(() => ({
-    fontSize: interpolate(scrollY.value, [0, 80], [58, 32], "clamp"),
+    fontSize: interpolate(scrollY.value, [0, 80], [fontScale(58), fontScale(32)], "clamp"),
   }));
 
   return (

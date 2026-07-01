@@ -2,6 +2,7 @@
 import React from "react";
 import { View, Text, Animated, Platform, StyleSheet } from "react-native";
 import { BlurView } from "expo-blur";
+import { verticalScale, fontScale } from "../utils/responsive";
 
 interface ReusableAnimatedHeaderProps {
   scrollY: Animated.Value;
@@ -16,13 +17,13 @@ export default function ReusableAnimatedHeader({
 }: ReusableAnimatedHeaderProps) {
   const headerHeight = scrollY.interpolate({
     inputRange: [0, 70],
-    outputRange: [130, 70],
+    outputRange: [verticalScale(130), verticalScale(70)],
     extrapolate: "clamp",
   });
 
   const titleSize = scrollY.interpolate({
     inputRange: [0, 80],
-    outputRange: [58, 20],
+    outputRange: [fontScale(58), fontScale(20)],
     extrapolate: "clamp",
   });
 
