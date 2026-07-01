@@ -22,6 +22,7 @@ import {
 } from "../../utils/streakHistory";
 
 import { ApiStreak, StreaksService } from "../../services/streaks";
+import { scale, verticalScale } from "../../utils/responsive";
 
 const StreaksScreen: React.FC = () => {
   const scrollY = useRef(new Animated.Value(0)).current;
@@ -216,7 +217,7 @@ const StreaksScreen: React.FC = () => {
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
           { useNativeDriver: false }
         )}
-        contentContainerStyle={{ paddingTop: 150, paddingBottom: 120 }}
+        contentContainerStyle={{ paddingTop: verticalScale(150), paddingBottom: verticalScale(120) }}
       >
         {streaks.map((s) => {
           const cooldownEndUnix = s.cooldown_end
@@ -226,7 +227,7 @@ const StreaksScreen: React.FC = () => {
           const paused = !!s.paused;
 
           return (
-            <View key={s.id} style={{ paddingHorizontal: 15 }}>
+            <View key={s.id} style={{ paddingHorizontal: scale(16) }}>
               <StreakItem
                 title={s.title}
                 streakCount={s.streak_count}
