@@ -84,9 +84,9 @@ def ctask(id):
 def rtask():
     try:
         data = request.json
-        ordered_ids = data["order"]
+        tasks = data["tasks"]
         user_id = authenticate_userid(request)
-        return reorder_tasks(user_id, ordered_ids)
+        return reorder_tasks(user_id, tasks)
     except Exception as e:
         return str(e), 400
 

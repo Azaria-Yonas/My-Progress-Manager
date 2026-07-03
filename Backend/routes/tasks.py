@@ -125,7 +125,7 @@ def complete_task(user_id, id):
     except pg.Error as e:
         return jsonify({"Error": str(e)}), 400
     
-def reorder_tasks(user_id, ordered_ids):
+def reorder_tasks(user_id, tasks):
     try:
         with psycopg_connect() as conn:
             with conn.cursor() as curr:
@@ -133,7 +133,7 @@ def reorder_tasks(user_id, ordered_ids):
                     UPDATE public.tasks SET order_index = %s
                     WHERE id = %s AND user_id = %s
                 """,
-                [(index, task_id, user_id) for index, task_id in enumerate(ordered_ids)])
-        return jsonify({"message": "Successfully Reordered Tasks"})
+                [(task["order_index"], task["id"], user_id) for task in tasks])
+        return "", 200
     except pg.Error as e:
         return jsonify({"Error": str(e)}), 400
