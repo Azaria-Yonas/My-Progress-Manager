@@ -7,25 +7,34 @@ from clients.psycopg_connect import psycopg_connect
 
 def fecth_streaks(user_id):
     results = []
-    with psycopg_connect() as conn:
-        with conn.cursor() as curr:
-            curr.execute("""
-                SELECT title, start_time, interval_seconds, streak_count FROM mydb.streaks
-                WHERE user_id = %s
-            """,
-            (user_id,))
+    try:
+        with psycopg_connect() as conn:
+            with conn.cursor() as curr:
+                curr.execute("""
+                    SELECT id, user_id, title, duration_seconds, cooldown_end, created_at, updated_at, streak_count, last_tap_at, paused
+                    FROM public.streaks
+                    WHERE user_id = %s
+                """,
+                (user_id,))
 
-            rows = curr.fetchall()
+                rows = curr.fetchall()
 
-            for row in rows:
-                results.append({
-                    "title": row[0],
-                    "start_time": row[1],
-                    "interval_seconds": row[2],
-                    "streak_count": row[3],
-                })
-
-    return jsonify(results)
+                for row in rows:
+                    results.append({
+                        "id": row[0],
+                        "user_id": row[1],
+                        "title": row[2],
+                        "duration_seconds": row[3],
+                        "cooldown_end": row[4],
+                        "created_at": row[5],
+                        "updated_at": row[6],
+                        "streak_count": row[7],
+                        "last_tap_at": row[8],
+                        "paused": row[9]
+                    })
+        return jsonify(results)
+    except pg.Error as e:
+        return jsonify({"Error: ": str(e)}), 400
 
 
 def create_streak(user_id, title, duration_seconds):
