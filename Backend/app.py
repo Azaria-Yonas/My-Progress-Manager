@@ -5,7 +5,7 @@ from routes.login import login
 from routes.signup import signup
 from routes.profile import getme, signout
 from routes.tasks import fecth_tasks, create_task, delete_task, complete_task, reorder_tasks
-from routes.streaks import fecth_streaks
+from routes.streaks import fecth_streaks, create_streak
 from routes.stats import tasks_analytics, streaks_analytics
 
  
@@ -96,6 +96,17 @@ def fstreaks():
     try:
         id = authenticate_userid(request)
         return fecth_streaks(id)
+    except Exception as e:
+        return str(e), 400
+    
+@app.route("/streaks", methods = ["POST"])              # Create Streaks
+def cstreaks():
+    try:
+        data = request.json
+        title = data["title"]
+        duration_seconds = data["duration_seconds"]
+        id = authenticate_userid(request)
+        return create_streak(id, title, duration_seconds)
     except Exception as e:
         return str(e), 400
 
