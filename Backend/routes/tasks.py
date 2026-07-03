@@ -125,6 +125,35 @@ def complete_task(user_id, id):
     except pg.Error as e:
         return jsonify({"Error": str(e)}), 400
     
+def undo_complete_task(user_id, id):
+    try:
+        with psycopg_connect() as conn:
+            with conn.cursor() as curr:
+                curr.execute("""
+                    SELECT id, user_id, title, color, due_date FROM public.completed_tasks
+                    WHERE id = %s AND user_id = %s
+                """,
+                (id, user_id))
+                task = curr.fetchone()
+
+                if task is None:
+                    return jsonify({"Error": "Completed task not found"}), 404
+
+                curr.execute("""
+                    INSERT INTO public.tasks (id, user_id, title, color, due_date)
+                    VALUES (%s, %s, %s, %s, %s);
+                """,
+                task)
+
+                curr.execute("""
+                    DELETE FROM public.completed_tasks
+                    WHERE id = %s AND user_id = %s
+                """,
+                (id, user_id))
+        return jsonify({"message": "Successfully restored task"}), 200
+    except pg.Error as e:
+        return jsonify({"Error": str(e)}), 400
+
 def reorder_tasks(user_id, tasks):
     try:
         with psycopg_connect() as conn:
@@ -136,4 +165,5 @@ def reorder_tasks(user_id, tasks):
                 [(task["order_index"], task["id"], user_id) for task in tasks])
         return "", 200
     except pg.Error as e:
-        return jsonify({"Error": str(e)}), 400
+        return jsonify({"Error": str(e)}), 400 
+    
