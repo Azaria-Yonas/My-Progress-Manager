@@ -4,7 +4,7 @@ from auth.auth import authenticate_userid
 from routes.login import login
 from routes.signup import signup
 from routes.profile import getme, signout
-from routes.tasks import fecth_tasks, create_task, delete_task, complete_task
+from routes.tasks import fecth_tasks, create_task, delete_task, complete_task, reorder_tasks
 from routes.streaks import fecth_streaks
 from routes.stats import tasks_analytics, streaks_analytics
 
@@ -77,6 +77,16 @@ def ctask(id):
     try:
         user_id = authenticate_userid(request)
         return complete_task(user_id, id)
+    except Exception as e:
+        return str(e), 400
+    
+@app.route("/tasks/reorder", methods = ["PATCH"])       # Reorder Tasks
+def rtask():
+    try:
+        data = request.json
+        ordered_ids = data["order"]
+        user_id = authenticate_userid(request)
+        return reorder_tasks(user_id, ordered_ids)
     except Exception as e:
         return str(e), 400
 
