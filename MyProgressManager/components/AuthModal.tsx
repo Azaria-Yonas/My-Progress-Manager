@@ -5,6 +5,8 @@ import {
   TextInput,
   TouchableOpacity,
   Modal,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
 
 import { useThemeMode } from "../context/ThemeContext";
@@ -24,10 +26,11 @@ export default function AuthModal({ visible, onClose }: AuthModalProps) {
   const { theme, currentTheme } = useThemeMode();
   const { login, signup } = useAuth();
   const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const isDark =
     currentTheme === "dark" ||
-    (currentTheme === "system" && false); 
+    (currentTheme === "system" && false);
 
   const styles = createAuthModalStyles(theme, isDark);
 
@@ -40,17 +43,31 @@ export default function AuthModal({ visible, onClose }: AuthModalProps) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
 
+  const switchMode = (next: "login" | "signup" | "reset" | "sent") => {
+    setFormError(null);
+    setMode(next);
+  };
+
   const handleLogin = async () => {
     if (submitting) return;
+
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+    if (!trimmedEmail || !trimmedPassword) {
+      setFormError("Enter your email and password.");
+      return;
+    }
+
+    setFormError(null);
     setSubmitting(true);
     try {
-      await login({ email, password });
+      await login({ email: trimmedEmail, password: trimmedPassword });
       onClose();
       router.replace("/(tabs)/home");
     } catch (err) {
       const message =
         err instanceof ApiError ? err.message : "Could not log in. Try again.";
-      alert(message);
+      Alert.alert("Login failed", message);
     } finally {
       setSubmitting(false);
     }
@@ -58,9 +75,30 @@ export default function AuthModal({ visible, onClose }: AuthModalProps) {
 
   const handleSignup = async () => {
     if (submitting) return;
+
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+    const trimmedFirstName = firstName.trim();
+    const trimmedLastName = lastName.trim();
+    if (
+      !trimmedEmail ||
+      !trimmedPassword ||
+      !trimmedFirstName ||
+      !trimmedLastName
+    ) {
+      setFormError("Fill in all fields to create an account.");
+      return;
+    }
+
+    setFormError(null);
     setSubmitting(true);
     try {
-      await signup({ email, password, firstName, lastName });
+      await signup({
+        email: trimmedEmail,
+        password: trimmedPassword,
+        firstName: trimmedFirstName,
+        lastName: trimmedLastName,
+      });
       onClose();
       router.replace("/(tabs)/home");
     } catch (err) {
@@ -68,7 +106,7 @@ export default function AuthModal({ visible, onClose }: AuthModalProps) {
         err instanceof ApiError
           ? err.message
           : "Could not create account. Try again.";
-      alert(message);
+      Alert.alert("Sign up failed", message);
     } finally {
       setSubmitting(false);
     }
@@ -90,6 +128,10 @@ export default function AuthModal({ visible, onClose }: AuthModalProps) {
                 placeholder="Email"
                 placeholderTextColor={isDark ? "#ccc" : "#777"}
                 style={styles.input}
+                autoCapitalize="none"
+                autoCorrect={false}
+                keyboardType="email-address"
+                textContentType="emailAddress"
                 onChangeText={setEmail}
               />
 
@@ -98,24 +140,40 @@ export default function AuthModal({ visible, onClose }: AuthModalProps) {
                 secureTextEntry
                 placeholderTextColor={isDark ? "#ccc" : "#777"}
                 style={styles.input}
+                autoCapitalize="none"
+                autoCorrect={false}
+                textContentType="password"
                 onChangeText={setPassword}
               />
 
-              <TouchableOpacity style={styles.button} onPress={handleLogin}>
-                <Text style={styles.buttonText}>Login</Text>
+              {formError && (
+                <Text style={[styles.link, { color: theme.danger }]}>
+                  {formError}
+                </Text>
+              )}
+
+              <TouchableOpacity
+                style={[styles.button, submitting && { opacity: 0.6 }]}
+                onPress={handleLogin}
+                disabled={submitting}
+              >
+                {submitting ? (
+                  <ActivityIndicator color={theme.onPrimary} />
+                ) : (
+                  <Text style={styles.buttonText}>Login</Text>
+                )}
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={() => setMode("signup")}>
+              <TouchableOpacity onPress={() => switchMode("signup")}>
                 <Text style={styles.link}>Don't have an account? Sign up</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={() => setMode("reset")}>
+              <TouchableOpacity onPress={() => switchMode("reset")}>
                 <Text style={styles.link}>Forgot password?</Text>
               </TouchableOpacity>
             </>
           )}
 
-          {/* SIGNUP */}
           {mode === "signup" && (
             <>
               <Text style={styles.title}>Sign Up</Text>
@@ -138,6 +196,10 @@ export default function AuthModal({ visible, onClose }: AuthModalProps) {
                 placeholder="Email"
                 placeholderTextColor={isDark ? "#ccc" : "#777"}
                 style={styles.input}
+                autoCapitalize="none"
+                autoCorrect={false}
+                keyboardType="email-address"
+                textContentType="emailAddress"
                 onChangeText={setEmail}
               />
 
@@ -146,14 +208,31 @@ export default function AuthModal({ visible, onClose }: AuthModalProps) {
                 secureTextEntry
                 placeholderTextColor={isDark ? "#ccc" : "#777"}
                 style={styles.input}
+                autoCapitalize="none"
+                autoCorrect={false}
+                textContentType="newPassword"
                 onChangeText={setPassword}
               />
 
-              <TouchableOpacity style={styles.button} onPress={handleSignup}>
-                <Text style={styles.buttonText}>Create Account</Text>
+              {formError && (
+                <Text style={[styles.link, { color: theme.danger }]}>
+                  {formError}
+                </Text>
+              )}
+
+              <TouchableOpacity
+                style={[styles.button, submitting && { opacity: 0.6 }]}
+                onPress={handleSignup}
+                disabled={submitting}
+              >
+                {submitting ? (
+                  <ActivityIndicator color={theme.onPrimary} />
+                ) : (
+                  <Text style={styles.buttonText}>Create Account</Text>
+                )}
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={() => setMode("login")}>
+              <TouchableOpacity onPress={() => switchMode("login")}>
                 <Text style={styles.link}>Already have an account? Login</Text>
               </TouchableOpacity>
             </>
@@ -167,6 +246,10 @@ export default function AuthModal({ visible, onClose }: AuthModalProps) {
                 placeholder="Email"
                 placeholderTextColor={isDark ? "#ccc" : "#777"}
                 style={styles.input}
+                autoCapitalize="none"
+                autoCorrect={false}
+                keyboardType="email-address"
+                textContentType="emailAddress"
                 onChangeText={setEmail}
               />
 
@@ -174,13 +257,12 @@ export default function AuthModal({ visible, onClose }: AuthModalProps) {
                 <Text style={styles.buttonText}>Send Reset Link</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={() => setMode("login")}>
+              <TouchableOpacity onPress={() => switchMode("login")}>
                 <Text style={styles.link}>Back to Login</Text>
               </TouchableOpacity>
             </>
           )}
 
-          {/* RESET SENT */}
           {mode === "sent" && (
             <>
               <Text style={styles.title}>Email Sent</Text>
@@ -195,7 +277,7 @@ export default function AuthModal({ visible, onClose }: AuthModalProps) {
                 Check your email for the reset link.
               </Text>
 
-              <TouchableOpacity onPress={() => setMode("login")}>
+              <TouchableOpacity onPress={() => switchMode("login")}>
                 <Text style={styles.link}>Back to Login</Text>
               </TouchableOpacity>
             </>

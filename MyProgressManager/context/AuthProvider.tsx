@@ -18,6 +18,7 @@ import {
   getToken,
   setToken,
 } from "../services/tokenStorage";
+import { ApiError } from "../services/api";
 
 type AuthContextType = {
   user: AuthUser | null;
@@ -45,10 +46,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const me = await AuthService.me();
       setUser(me);
       return me;
-    } catch {
-      await clearToken();
-      setTokenState(null);
-      setUser(null);
+    } catch (err) {
+      if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
+        await clearToken();
+        setTokenState(null);
+        setUser(null);
+      }
       return null;
     }
   }, []);
