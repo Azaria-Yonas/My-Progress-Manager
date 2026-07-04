@@ -1,6 +1,7 @@
 # routes/tasks.py
 from flask import jsonify
 import psycopg as pg
+from psycopg import sql
 from clients.psycopg_connect import psycopg_connect
 
 
@@ -65,24 +66,37 @@ def create_task(user_id, title, color, due_date):
     except pg.Error as e:
         return jsonify({"Error: ": str(e)}), 400
     
-def update_task(id, **values):
-    def unravel(kwargs):
-        values = ""
-        for k, v in kwargs:
-            values += f"{k} = {v},"
-        return values
-
+def update_task(user_id, id, values):
+    fields = ["title", "color", "due_date", "order_index", "is_completed"]
+    updates = {field: values[field] for field in fields if field in values}
+    if not updates:
+        return jsonify({"Error": "No fields to update"}), 400
     try:
         with psycopg_connect() as conn:
             with conn.cursor() as curr:
-                curr.execute("""
-                    UPDATE public.tasks SET %s 
-                    WHERE id = %s
-                """,
-                (id,unravel(kwargs=values)))
-        return jsonify({"message": "Successfully Updated Task"})
+                set_clause = sql.SQL(", ").join([sql.SQL("{} = %s").format(sql.Identifier(field)) for field in updates])
+                curr.execute(sql.SQL("""
+                    UPDATE public.tasks SET {}
+                    WHERE id = %s AND user_id = %s
+                    RETURNING id, user_id, title, is_completed, color, due_date, order_index
+                """).format(set_clause),
+                (*updates.values(), id, user_id))
+
+                row = curr.fetchone()
+                if row is None:
+                    return jsonify({"Error": "Task not found"}), 404
+
+                return jsonify({
+                    "id": row[0],
+                    "user_id": row[1],
+                    "title": row[2],
+                    "is_completed": row[3],
+                    "color": row[4],
+                    "due_date": row[5],
+                    "order_index": row[6]
+                })
     except pg.Error as e:
-        return jsonify({"Error: ", str(e)})
+        return jsonify({"Error": str(e)}), 400
     
 def delete_task(user_id, id):
     try:
