@@ -4,8 +4,8 @@ from auth.auth import authenticate_userid
 from routes.login import login
 from routes.signup import signup
 from routes.profile import getme, signout
-from routes.tasks import fecth_tasks, create_task, delete_task, complete_task, undo_complete_task, reorder_tasks
-from routes.streaks import fecth_streaks, create_streak
+from routes.tasks import fecth_tasks, create_task, update_task, delete_task, complete_task, undo_complete_task, reorder_tasks
+from routes.streaks import fecth_streaks, create_streak, update_streak, delete_streak, tap_streak, expire_streak, pause_streak, complete_streak
 from routes.stats import tasks_analytics, streaks_analytics
 
  
@@ -14,16 +14,16 @@ app = Flask(__name__)
 
 
 
-@app.route("/login", methods=["POST"])                      # Login 
+@app.route("/login", methods=["POST"])                          # Login 
 def login_route():
     return login()
 
-@app.route("/sigup", methods=["POST"])                      # SignUp
+@app.route("/signup", methods=["POST"])                         # SignUp
 def signup_route_route():
     return signup()
 
 
-@app.route("/me", methods = ["GET"])                        # Get Me
+@app.route("/me", methods = ["GET"])                            # Get Me
 def gme():
     try:
         id = authenticate_userid(request)
@@ -31,7 +31,7 @@ def gme():
     except Exception as e:
         return str(e), 400
 
-@app.route("/logout", methods = ["POST"])                   # Sign Out
+@app.route("/logout", methods = ["POST"])                       # Sign Out
 def lout():
     try:
         auth_header = request.headers.get("Authorization")
@@ -64,6 +64,16 @@ def ctasks():
         return str(e), 400
     
     
+@app.route("/tasks/<id>", methods = ["PATCH"])                  # Update Tasks
+def utask(id):
+    try:
+        data = request.json
+        user_id = authenticate_userid(request)
+        return update_task(user_id, id, data)
+    except Exception as e:
+        return str(e), 400
+
+
 @app.route("/tasks/<id>", methods = ["DELETE"])                 # Delete Task
 def dtask(id):
     try:
@@ -117,8 +127,64 @@ def cstreaks():
         return create_streak(id, title, duration_seconds)
     except Exception as e:
         return str(e), 400
-    
-@app.route("/stats/tasks", methods = ["GET"])
+
+@app.route("/streaks/<id>", methods = ["PATCH"])                # Update Streaks
+def ustreak(id):
+    try:
+        data = request.json
+        user_id = authenticate_userid(request)
+        return update_streak(user_id, id, data)
+    except Exception as e:
+        return str(e), 400
+
+@app.route("/streaks/<id>", methods = ["DELETE"])               # Delete Streaks
+def dstreak(id):
+    try:
+        user_id = authenticate_userid(request)
+        return delete_streak(user_id, id)
+    except Exception as e:
+        return str(e), 400
+
+@app.route("/streaks/<id>/tap", methods = ["POST"])             # Increment Streaks
+def tstreak(id):
+    try:
+        user_id = authenticate_userid(request)
+        return tap_streak(user_id, id)
+    except Exception as e:
+        return str(e), 400
+
+@app.route("/streaks/<id>/expire", methods = ["POST"])          # Expired Streaks
+def estreak(id):
+    try:
+        user_id = authenticate_userid(request)
+        return expire_streak(user_id, id)
+    except Exception as e:
+        return str(e), 400
+
+@app.route("/streaks/<id>/pause", methods = ["POST"])           # Pause Streak
+def pstreak(id):
+    try:
+        data = request.json
+        paused = data["paused"]
+        user_id = authenticate_userid(request)
+        return pause_streak(user_id, id, paused)
+    except Exception as e:
+        return str(e), 400
+
+@app.route("/streaks/<id>/complete", methods = ["POST"])
+def cstreak(id):
+    try:
+        data = request.json
+        total_intervals = data["total_intervals"]
+        successful_intervals = data["successful_intervals"]
+        failed_intervals = data["failed_intervals"]
+        calendar_data = data["calendar_data"]
+        user_id = authenticate_userid(request)
+        return complete_streak(user_id, id, total_intervals, successful_intervals, failed_intervals, calendar_data)
+    except Exception as e:
+        return str(e), 400
+
+@app.route("/stats/tasks", methods = ["GET"])                   # Tasks Analytics
 def gctasks():
     try:
         id = authenticate_userid(request)

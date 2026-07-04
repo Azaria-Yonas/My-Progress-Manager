@@ -71,7 +71,7 @@ desktop.ini
 *.DS_Store
 .DS_Store
 
-*.md
+
 
 */__pycache__/
 
