@@ -1,21 +1,14 @@
 # Security Policy
 
-## Supported Versions
+## Supported Code
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+Since this is just a personal project I uploaded for people to look at and use, I only maintain the current code on the `main` branch. 
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+## Reporting Exposed Information
 
-## Reporting a Vulnerability
+The main thing I want to make sure of is that I haven't accidentally left any secrets exposed. If you notice any **leaked API keys, passwords, or personal information** anywhere in this repository, please do not open a public issue about it. 
 
-Use this section to tell people how to report a vulnerability.
+### How to Reach Me
+Please email me directly and privately at **azariahyonas22@gmail.com** so I can wipe the history and secure the credentials immediately. 
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+For general code bugs or feature suggestions, feel free to just open a regular GitHub issue or pull request! Thank you for helping me keep my accounts and data secure.
