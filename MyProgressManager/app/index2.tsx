@@ -12,11 +12,12 @@ import { LinearGradient } from "expo-linear-gradient";
 
 import { styles } from "../styles/IndexStyles2";
 import SpinningLogo from "../components/SpinningLogo";
-import { getToken } from "../services/tokenStorage";
+import { useAuth } from "../context/AuthProvider";
 
 export default function Index() {
   const router = useRouter();
-  const [redirectTo, setRedirectTo] = useState<string | null>(null);
+  const { user, initializing } = useAuth();
+  const [minDelayElapsed, setMinDelayElapsed] = useState(false);
 
   const titleOpacity = useSharedValue(0);
   const subtitleOpacity = useSharedValue(0);
@@ -35,19 +36,15 @@ export default function Index() {
   }));
 
   useEffect(() => {
-    const timer = setTimeout(async () => {
-      const token = await getToken();
-      setRedirectTo(token ? "/(tabs)/home" : "/(tabs)/loginSignup");
-    }, 4000);
-
+    const timer = setTimeout(() => setMinDelayElapsed(true), 4000);
     return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
-    if (redirectTo) {
-      router.replace(redirectTo as any);
+    if (minDelayElapsed && !initializing) {
+      router.replace(user ? "/(tabs)/home" : "/(tabs)/loginSignup");
     }
-  }, [redirectTo]);
+  }, [minDelayElapsed, initializing, user]);
 
   return (
     <View style={{ flex: 1 }}>

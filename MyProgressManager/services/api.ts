@@ -5,6 +5,8 @@
 import { API_BASE_URL } from "../constants/config";
 import { getToken } from "./tokenStorage";
 
+const REQUEST_TIMEOUT_MS = 20000;
+
 export class ApiError extends Error {
   status: number;
   body: unknown;
@@ -47,20 +49,29 @@ export async function request<T = unknown>(
 
   const url = `${API_BASE_URL}${path.startsWith("/") ? path : `/${path}`}`;
 
+  const controller = new AbortController();
+  if (signal) {
+    if (signal.aborted) controller.abort();
+    else signal.addEventListener("abort", () => controller.abort());
+  }
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
   let response: Response;
   try {
     response = await fetch(url, {
       method,
       headers,
       body: body !== undefined ? JSON.stringify(body) : undefined,
-      signal,
+      signal: controller.signal,
     });
   } catch (err: any) {
     throw new ApiError(
-      err?.message || "Network request failed",
+      err?.name === "AbortError" ? "Request timed out" : err?.message || "Network request failed",
       0,
       null
     );
+  } finally {
+    clearTimeout(timeoutId);
   }
 
   const text = await response.text();
