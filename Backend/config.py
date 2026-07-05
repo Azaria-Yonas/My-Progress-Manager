@@ -17,3 +17,7 @@ DB_PORT= os.getenv("DB_PORT")
 SUPABASE_URL= os.getenv("SUPABASE_URL")
 SUPABASE_KEY= os.getenv("SUPABASE_KEY")
 SUPABASE_ADMIN_KEY = os.getenv("SERVICE_ROLE_KEY")
+
+
+# OpenAI API Config
+OPENAI_KEY = os.getenv("CHAT_GPT_API_KEY")
