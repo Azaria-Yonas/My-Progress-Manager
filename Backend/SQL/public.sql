@@ -1,12 +1,10 @@
--- WARNING: This schema is for context only and is not meant to be run.
--- Table order and constraints may not be valid for execution.
 
-CREATE TABLE public.Test (
+CREATE TABLE IF NOT EXISTS public.Test (
   index integer NOT NULL DEFAULT 0,
   name text,
   CONSTRAINT Test_pkey PRIMARY KEY (index)
 );
-CREATE TABLE public.completed_streaks (
+CREATE TABLE IF NOT EXISTS public.completed_streaks (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL DEFAULT gen_random_uuid(),
   title text,
@@ -21,7 +19,10 @@ CREATE TABLE public.completed_streaks (
   CONSTRAINT completed_streaks_pkey PRIMARY KEY (id),
   CONSTRAINT completed_streaks_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
 );
-CREATE TABLE public.completed_tasks (
+
+CREATE INDEX user_cstreaks ON public.completed_streaks (user_id);
+
+CREATE TABLE IF NOT EXISTS public.completed_tasks (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL DEFAULT gen_random_uuid(),
   title text NOT NULL DEFAULT ''::text,
@@ -31,7 +32,10 @@ CREATE TABLE public.completed_tasks (
   CONSTRAINT completed_tasks_pkey PRIMARY KEY (id),
   CONSTRAINT completed_table_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
 );
-CREATE TABLE public.streaks (
+
+CREATE INDEX user_ctasks ON public.completed_tasks (user_id);
+
+CREATE TABLE IF NOT EXISTS public.streaks (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL,
   title text NOT NULL,
@@ -46,7 +50,10 @@ CREATE TABLE public.streaks (
   CONSTRAINT streaks_pkey PRIMARY KEY (id),
   CONSTRAINT streaks_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
 );
-CREATE TABLE public.tasks (
+
+CREATE INDEX user_streaks ON public.streaks (user_id);
+
+CREATE TABLE IF NOT EXISTS public.tasks (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL,
   title text NOT NULL DEFAULT ''::text,
@@ -58,3 +65,5 @@ CREATE TABLE public.tasks (
   CONSTRAINT tasks_pkey PRIMARY KEY (id),
   CONSTRAINT tasks_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
 );
+
+CREATE INDEX user_tasks ON public.tasks (user_id)
