@@ -95,10 +95,8 @@ CREATE POLICY user_isolation ON public.completed_streaks
 
 
 CREATE TABLE public.agent (
-  user_id uuid NOT NULL,
+    user_id uuid PRIMARY KEY REFERENCES auth.users(id),
   data text,
-  CONSTRAINT unique_users UNIQUE (user_id),
-  CONSTRAINT agent_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
 );
 ALTER TABLE public.agent ENABLE ROW LEVEL SECURITY;
 CREATE POLICY user_isolation ON public.agent
