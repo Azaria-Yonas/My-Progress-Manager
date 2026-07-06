@@ -7,7 +7,7 @@ from routes.profile import getme, signout
 from routes.tasks import fecth_tasks, create_task, update_task, delete_task, complete_task, undo_complete_task, reorder_tasks
 from routes.streaks import fecth_streaks, create_streak, update_streak, delete_streak, tap_streak, expire_streak, pause_streak, complete_streak
 from routes.stats import tasks_analytics, streaks_analytics
-
+from routes.agent  import get_data, append_data
  
 app = Flask(__name__)
 
@@ -202,6 +202,22 @@ def gcstreaks():
         return str(e), 400
     
     
+@app.route("/agent", method = ["GET"])                          # Get Data
+def gdata():
+    try:
+        id = authenticate_userid(request)
+        return get_data(id)
+    except Exception as e:
+        return str(e), 400
+
+@app.route("/agent", method = ["POST"])                         # Append Data
+def adata():
+    try:
+        id = authenticate_userid(request)
+        return append_data(id)
+    except Exception as e:
+        return str(e), 400
+
 
 @app.route("/")
 def home():
