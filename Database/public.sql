@@ -97,7 +97,7 @@ CREATE POLICY user_isolation ON public.completed_streaks
 CREATE TABLE public.agent (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL DEFAULT gen_random_uuid(),
-  data text;
+  data text
 );
 ALTER TABLE public.agent ENABLE ROW LEVEL SECURITY;
 CREATE POLICY user_isolation ON public.agent
