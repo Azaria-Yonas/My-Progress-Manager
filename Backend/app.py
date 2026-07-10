@@ -8,7 +8,7 @@ from routes.tasks import fecth_tasks, create_task, update_task, delete_task, com
 from routes.streaks import fecth_streaks, create_streak, update_streak, delete_streak, tap_streak, expire_streak, pause_streak, complete_streak
 from routes.stats import tasks_analytics, streaks_analytics
 from routes.agent import get_data, append_data
-from agent.agent import message_agent
+# from agent.agent import message_agent
  
 app = Flask(__name__)
 
@@ -219,7 +219,7 @@ def adata():
     except Exception as e:
         return str(e), 400
     
-@app.route("/agent", method = ["POST"])
+@app.route("/agent/message", method = ["POST"])                 # Message Agent
 def magent():
     try:
         id = authenticate_userid(request)
