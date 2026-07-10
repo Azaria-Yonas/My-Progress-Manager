@@ -21,3 +21,7 @@ SUPABASE_ADMIN_KEY = os.getenv("SERVICE_ROLE_KEY")
 
 # OpenAI API Config
 OPENAI_KEY = os.getenv("CHAT_GPT_API_KEY")
+
+# Tavily Key
+TAVILY_KEY = os.getenv("TAVILY_KEY")
+

@@ -94,3 +94,12 @@ CREATE POLICY user_isolation ON public.completed_streaks
   WITH CHECK (auth.uid() = user_id);
 
 
+CREATE TABLE public.agent (
+    user_id uuid PRIMARY KEY REFERENCES auth.users(id),
+  data text,
+);
+ALTER TABLE public.agent ENABLE ROW LEVEL SECURITY;
+CREATE POLICY user_isolation ON public.agent
+  FOR ALL
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
