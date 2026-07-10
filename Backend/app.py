@@ -203,7 +203,7 @@ def gcstreaks():
         return str(e), 400
     
     
-@app.route("/agent", method = ["GET"])                          # Get Data
+@app.route("/agent", methods = ["GET"])                          # Get Data
 def gdata():
     try:
         id = authenticate_userid(request)
@@ -211,7 +211,7 @@ def gdata():
     except Exception as e:
         return str(e), 400
 
-@app.route("/agent", method = ["POST"])                         # Append Data
+@app.route("/agent", methods = ["POST"])                         # Append Data
 def adata():
     try:
         id = authenticate_userid(request)
@@ -219,7 +219,7 @@ def adata():
     except Exception as e:
         return str(e), 400
     
-@app.route("/agent/message", method = ["POST"])                 # Message Agent
+@app.route("/agent/message", methods = ["POST"])                 # Message Agent
 def magent():
     try:
         id = authenticate_userid(request)
