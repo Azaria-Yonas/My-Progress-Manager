@@ -78,3 +78,5 @@ desktop.ini
 global.d.ts
 
 .mcp.json
+
+*expo-env.d.ts
