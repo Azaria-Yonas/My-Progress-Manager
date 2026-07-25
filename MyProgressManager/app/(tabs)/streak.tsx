@@ -10,6 +10,7 @@ import StreakAddModal from "../../components/StreakAddModal";
 import StreakItem from "../../components/StreakItem";
 import { createStreaksScreenStyles } from "../../styles/StreaksScreenStyles";
 import BottomBar from "../../components/BottomBar";
+import AgentChat from "../../components/AgentChat";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -243,6 +244,8 @@ const StreaksScreen: React.FC = () => {
           );
         })}
       </Animated.ScrollView>
+
+      <AgentChat scrollY={scrollY} />
 
       <BottomBar />
     </View>

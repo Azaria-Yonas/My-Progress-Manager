@@ -13,6 +13,7 @@ import { useAuth } from "../../context/AuthProvider";
 import { useRouter } from "expo-router";
 import { TasksService } from "../../services/tasks";
 import BottomBar from "../../components/BottomBar";
+import AgentChat from "../../components/AgentChat";
 import { useTypography } from "../../context/TypographyContext";
 import { scale, verticalScale, fontScale } from "../../utils/responsive";
 
@@ -258,6 +259,8 @@ export default function Home() {
           </Text>
         </TouchableOpacity>
       )}
+
+      <AgentChat scrollY={scrollY} />
 
       <BottomBar />
     </View>
