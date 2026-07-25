@@ -95,8 +95,10 @@ CREATE POLICY user_isolation ON public.completed_streaks
 
 
 CREATE TABLE public.agent (
-    user_id uuid PRIMARY KEY REFERENCES auth.users(id),
-  data text,
+  user_id uuid PRIMARY KEY REFERENCES auth.users(id),
+  agent_name text DEFAULT 'Agent',
+  avatar_picture text NOT NULL CHECK (avatar_picture IN ('agent0', 'agent1', 'agent2', 'agent3', 'agent4', 'agent5')),
+  user_data text
 );
 ALTER TABLE public.agent ENABLE ROW LEVEL SECURITY;
 CREATE POLICY user_isolation ON public.agent
