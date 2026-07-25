@@ -7,7 +7,7 @@ from routes.profile import getme, signout
 from routes.tasks import fecth_tasks, create_task, update_task, delete_task, complete_task, undo_complete_task, reorder_tasks
 from routes.streaks import fecth_streaks, create_streak, update_streak, delete_streak, tap_streak, expire_streak, pause_streak, complete_streak
 from routes.stats import tasks_analytics, streaks_analytics
-from routes.agent import get_data, append_data
+from routes.agent import configure_agent, get_agent, update_agent
 # from agent.agent import message_agent
  
 app = Flask(__name__)
@@ -203,21 +203,39 @@ def gcstreaks():
         return str(e), 400
     
     
-@app.route("/agent", methods = ["GET"])                          # Get Data
-def gdata():
+@app.route("/agent", methods = ["GET"])                          # Get Agent
+def gagent():
     try:
         id = authenticate_userid(request)
-        return get_data(id)
+        return get_agent(id)
     except Exception as e:
         return str(e), 400
 
-@app.route("/agent", methods = ["POST"])                         # Append Data
-def adata():
+@app.route("/agent", methods = ["POST"])                         # Configure Agent
+def cagent():
     try:
+        data = request.json
+        name = data["agent_name"]
+        picture = data["profile_picture"]
+        text = data["user_data"]
         id = authenticate_userid(request)
-        return append_data(id)
+        return configure_agent(id, name, picture, text)
     except Exception as e:
         return str(e), 400
+
+
+@app.route("/agent", methods = ["PUT"])                         # Update Agent
+def uagent():
+    try:
+        data = request.json
+        name = data.get("agent_name")
+        picture = data.get("profile_picture")
+        text = data.get("user_data")
+        id = authenticate_userid(request)
+        return update_agent(id, name, picture, text)
+    except Exception as e:
+        return str(e), 400
+
     
 @app.route("/agent/message", methods = ["POST"])                 # Message Agent
 def magent():
