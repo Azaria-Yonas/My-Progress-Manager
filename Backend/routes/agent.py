@@ -16,7 +16,7 @@ def get_agent(user_id):
                 if row is None:
                     return jsonify({"Error": "No data found"}), 400
 
-                return jsonify(row[0])
+                return jsonify(row)
     except pg.Error as e:
         return jsonify({"Error: ": str(e)}), 400
     
