@@ -216,7 +216,7 @@ def cagent():
     try:
         data = request.json
         name = data["agent_name"]
-        picture = data["profile_picture"]
+        picture = data["avatar_picture"]
         text = data["user_data"]
         id = authenticate_userid(request)
         return configure_agent(id, name, picture, text)
@@ -229,7 +229,7 @@ def uagent():
     try:
         data = request.json
         name = data.get("agent_name")
-        picture = data.get("profile_picture")
+        picture = data.get("avatar_picture")
         text = data.get("user_data")
         id = authenticate_userid(request)
         return update_agent(id, name, picture, text)
