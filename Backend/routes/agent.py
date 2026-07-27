@@ -26,7 +26,7 @@ def configure_agent(user_id, agent_name, avatar_picture, user_data):
         with psycopg_connect() as conn:
             with conn.cursor() as curr:
                 curr.execute("""
-                    INSERT INTO public.agent (user_id, agent_name, avatar_picture, user_data) VALUES (%s, %s)
+                    INSERT INTO public.agent (user_id, agent_name, avatar_picture, user_data) VALUES (%s, %s, %s, %s)
                     """,
                     (user_id, agent_name, avatar_picture, user_data))
 
