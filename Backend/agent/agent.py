@@ -6,5 +6,4 @@ class Agent:
         self._model = model
 
     def send_message(self, message):
-        return self._model(message)
-
+        return self._model.ask(message)

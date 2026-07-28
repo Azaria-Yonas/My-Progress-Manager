@@ -1,6 +1,7 @@
 import json
+import os
 
-TOOLS = "Backend/agent/tools/tools.json"
+TOOLS = os.path.join(os.path.dirname(__file__), "tools.json")
 
 def get_tools():
     with open(TOOLS, "r") as f:
