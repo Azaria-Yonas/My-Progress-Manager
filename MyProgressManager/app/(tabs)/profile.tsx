@@ -52,7 +52,7 @@ const ProfileScreen = () => {
   const handleLogout = async () => {
     setConfirmVisible(false);
     await logout();
-    router.replace("/(tabs)/loginSignup");
+    router.navigate("/(tabs)/loginSignup");
   };
 
   useEffect(() => {

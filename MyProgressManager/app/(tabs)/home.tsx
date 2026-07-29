@@ -33,12 +33,13 @@ export default function Home() {
 
   const deleteTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingDeleteIdRef = useRef<string | null>(null);
+  const archivedRef = useRef(false);
   const taskRef = useRef<Task | null>(null);
 
   const scrollY = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    if (!initializing && !user) router.replace("/(tabs)/loginSignup");
+    if (!initializing && !user) router.navigate("/(tabs)/loginSignup");
   }, [user, initializing]);
 
 
@@ -102,29 +103,40 @@ export default function Home() {
     }
 
     pendingDeleteIdRef.current = id;
+    archivedRef.current = false;
     setPendingDeleteId(id);
     setUndoVisible(true);
 
     if (deleteTimeoutRef.current) clearTimeout(deleteTimeoutRef.current);
 
     deleteTimeoutRef.current = setTimeout(async () => {
+      deleteTimeoutRef.current = null;
+
       if (pendingDeleteIdRef.current !== id) return;
-      if (!user) return;
+
+      const clearPending = () => {
+        pendingDeleteIdRef.current = null;
+        setPendingDeleteId(null);
+        setUndoVisible(false);
+      };
+
+      if (!user) {
+        clearPending();
+        return;
+      }
 
       try {
         // Backend owns the move into completed_tasks via /complete.
         await TasksService.complete(id);
+        archivedRef.current = true;
       } catch (err) {
         console.error("Error archiving completed task:", err);
+        clearPending();
         return;
       }
 
       setTasks((prev) => prev.filter((t) => t.id !== id));
-
-      pendingDeleteIdRef.current = null;
-      setPendingDeleteId(null);
-      setUndoVisible(false);
-      deleteTimeoutRef.current = null;
+      clearPending();
     }, 3000);
   };
 
@@ -139,16 +151,27 @@ export default function Home() {
     }
 
     try {
-      await TasksService.undoComplete(id);
+      if (archivedRef.current) {
+        await TasksService.undoComplete(id);
+      } else {
+        await TasksService.update(id, { is_completed: false });
+      }
     } catch (err) {
       console.error("Error undoing:", err);
     }
 
-    setTasks((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, completed: false } : t))
-    );
+    setTasks((prev) => {
+      const restored = prev.some((t) => t.id === id);
+      if (restored) {
+        return prev.map((t) => (t.id === id ? { ...t, completed: false } : t));
+      }
+      return taskRef.current
+        ? [...prev, { ...taskRef.current, completed: false }]
+        : prev;
+    });
 
     pendingDeleteIdRef.current = null;
+    archivedRef.current = false;
     setPendingDeleteId(null);
     setUndoVisible(false);
   };
