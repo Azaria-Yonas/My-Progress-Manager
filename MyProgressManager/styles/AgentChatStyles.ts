@@ -1,25 +1,62 @@
 import { StyleSheet, Dimensions } from "react-native";
 import { scale, verticalScale, fontScale } from "../utils/responsive";
 
-const { height: SCREEN_HEIGHT } = Dimensions.get("window");
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 export const AGENT_PANEL_HEIGHT = Math.round(SCREEN_HEIGHT * 0.86);
 export const AGENT_FAB_REST_TOP = verticalScale(104);
 export const AGENT_FAB_SHIFT = verticalScale(34);
 
+export const AGENT_FAB_SIZE = scale(46);
+export const AGENT_FAB_MARGIN = scale(16);
+
+const BOTTOM_BAR_CLEARANCE =
+  verticalScale(30) + verticalScale(24) + scale(26) + verticalScale(12);
+
+export const AGENT_FAB_LEFT_X = AGENT_FAB_MARGIN;
+export const AGENT_FAB_RIGHT_X = SCREEN_WIDTH - AGENT_FAB_MARGIN - AGENT_FAB_SIZE;
+export const AGENT_FAB_MAX_X = SCREEN_WIDTH - AGENT_FAB_SIZE;
+export const AGENT_FAB_MIN_Y = verticalScale(58);
+export const AGENT_FAB_MAX_Y = Math.max(
+  AGENT_FAB_MIN_Y,
+  SCREEN_HEIGHT - BOTTOM_BAR_CLEARANCE - AGENT_FAB_SIZE
+);
+
+export interface AgentFabPosition {
+  x: number;
+  y: number;
+}
+
+export const AGENT_FAB_DEFAULT_POSITION: AgentFabPosition = {
+  x: AGENT_FAB_RIGHT_X,
+  y: AGENT_FAB_REST_TOP,
+};
+
+export function clampFabValue(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
+}
+
+export function snapFabPosition(x: number, y: number): AgentFabPosition {
+  const center = x + AGENT_FAB_SIZE / 2;
+  return {
+    x: center < SCREEN_WIDTH / 2 ? AGENT_FAB_LEFT_X : AGENT_FAB_RIGHT_X,
+    y: clampFabValue(y, AGENT_FAB_MIN_Y, AGENT_FAB_MAX_Y),
+  };
+}
+
 export const createAgentChatStyles = (theme: any) =>
   StyleSheet.create({
     fabWrapper: {
       position: "absolute",
-      top: AGENT_FAB_REST_TOP,
-      right: scale(16),
+      left: 0,
+      top: 0,
       zIndex: 11,
     },
 
     fab: {
-      width: scale(46),
-      height: scale(46),
-      borderRadius: scale(23),
+      width: AGENT_FAB_SIZE,
+      height: AGENT_FAB_SIZE,
+      borderRadius: AGENT_FAB_SIZE / 2,
       alignItems: "center",
       justifyContent: "center",
       overflow: "hidden",
@@ -95,6 +132,12 @@ export const createAgentChatStyles = (theme: any) =>
       ...StyleSheet.absoluteFillObject,
       alignItems: "center",
       justifyContent: "center",
+    },
+
+    avatarImage: {
+      ...StyleSheet.absoluteFillObject,
+      width: "100%",
+      height: "100%",
     },
 
     headerTextWrap: {
