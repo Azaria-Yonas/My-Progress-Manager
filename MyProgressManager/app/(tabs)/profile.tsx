@@ -6,22 +6,33 @@ import {
   Text,
   ActivityIndicator,
   Animated,
+  Image,
   TouchableOpacity,
 } from "react-native";
 
 import { useThemeMode } from "../../context/ThemeContext";
 import { useTypography } from "../../context/TypographyContext";
 import { useAuth } from "../../context/AuthProvider";
+import { useAgent } from "../../context/AgentContext";
 
 import ReusableAnimatedHeader from "../../components/ReusableAnimatedHeader";
 import { createReusableHeaderStyles } from "../../styles/ReusableHeaderStyles";
 import { createProfileStyles } from "../../styles/ProfileStyles";
 import BottomBar from "../../components/BottomBar";
 import { useRouter } from "expo-router";
-import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons, Feather } from "@expo/vector-icons";
+import { scale } from "../../utils/responsive";
 
 const ProfileScreen = () => {
   const { user, logout, refreshUser, initializing } = useAuth();
+  const {
+    configured: agentConfigured,
+    agentName,
+    avatarSource,
+    behavior,
+    syncError,
+    openSetup,
+  } = useAgent();
   const [refreshing, setRefreshing] = useState(true);
 
   const scrollY = useRef(new Animated.Value(0)).current;
@@ -73,6 +84,8 @@ const ProfileScreen = () => {
   const createdAt = user.created_at
     ? new Date(user.created_at).toLocaleDateString()
     : "";
+
+  const behaviorCount = Object.keys(behavior).length;
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
@@ -127,6 +140,95 @@ const ProfileScreen = () => {
             fontSize={fontSize}
             fontWeight={fontWeight}
           />
+        </View>
+
+        <View style={styles.card}>
+          <Text
+            style={[
+              styles.sectionTitle,
+              {
+                color: theme.text,
+                fontSize: fontSize(22),
+                fontWeight: fontWeight(),
+              },
+            ]}
+          >
+            AI Agent
+          </Text>
+
+          <View style={styles.agentRow}>
+            <View style={styles.agentAvatar}>
+              {avatarSource ? (
+                <Image
+                  source={avatarSource}
+                  style={styles.agentAvatarImage}
+                  resizeMode="cover"
+                />
+              ) : (
+                <Feather name="message-circle" size={scale(26)} color={theme.textMuted} />
+              )}
+            </View>
+
+            <View style={styles.agentInfo}>
+              <Text
+                style={{
+                  color: theme.text,
+                  fontSize: fontSize(18),
+                  fontWeight: fontWeight(),
+                }}
+              >
+                {agentConfigured ? agentName : "Not configured"}
+              </Text>
+
+              <Text
+                style={{
+                  color: theme.text,
+                  opacity: 0.6,
+                  marginTop: 3,
+                  fontSize: fontSize(13),
+                }}
+              >
+                {agentConfigured
+                  ? `${behaviorCount} preference${
+                      behaviorCount === 1 ? "" : "s"
+                    } saved`
+                  : "Personalize how your AI looks and behaves"}
+              </Text>
+            </View>
+          </View>
+
+          {syncError && (
+            <Text
+              style={{
+                color: theme.danger,
+                marginTop: 12,
+                fontSize: fontSize(12.5),
+              }}
+            >
+              {syncError}
+            </Text>
+          )}
+
+          <TouchableOpacity
+            activeOpacity={0.85}
+            style={styles.agentButton}
+            onPress={openSetup}
+          >
+            <Feather
+              name={agentConfigured ? "edit-2" : "plus"}
+              size={scale(18)}
+              color={theme.onPrimary}
+            />
+            <Text
+              style={{
+                color: theme.onPrimary,
+                marginLeft: 8,
+                fontWeight: "600",
+              }}
+            >
+              {agentConfigured ? "Update Agent" : "Set Up Agent"}
+            </Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.card}>

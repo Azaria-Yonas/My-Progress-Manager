@@ -18,6 +18,7 @@ import TaskAnalyticsCard from "../../components/TaskAnalyticsCard";
 import { createReusableHeaderStyles } from "../../styles/ReusableHeaderStyles";
 import { createStatsStyles } from "../../styles/StatsStyles";
 import BottomBar from "../../components/BottomBar";
+import AgentChat from "../../components/AgentChat";
 
 import {
   StatsService,
@@ -299,6 +300,8 @@ const StatsScreen: React.FC = () => {
 
         <View style={{ height: 100 }} />
       </Animated.ScrollView>
+
+      <AgentChat scrollY={scrollY} />
 
       <BottomBar />
     </View>

@@ -71,6 +71,44 @@ export const createProfileStyles = (theme: any) =>
       color: theme.onPrimary,
     },
 
+    agentRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginTop: verticalScale(6),
+    },
+
+    agentAvatar: {
+      width: scale(58),
+      height: scale(58),
+      borderRadius: scale(29),
+      alignItems: "center",
+      justifyContent: "center",
+      overflow: "hidden",
+      backgroundColor: theme.input,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: theme.border,
+    },
+
+    agentAvatarImage: {
+      width: "100%",
+      height: "100%",
+    },
+
+    agentInfo: {
+      flex: 1,
+      marginLeft: scale(14),
+    },
+
+    agentButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      marginTop: verticalScale(16),
+      paddingVertical: verticalScale(12),
+      borderRadius: scale(10),
+      backgroundColor: theme.primary,
+    },
+
     logoutContainer: {
       marginTop: verticalScale(10),
       marginBottom: verticalScale(25),
