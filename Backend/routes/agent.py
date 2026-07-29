@@ -47,7 +47,7 @@ def update_agent(user_id, agent_name=None, avatar=None, user_data=None):
                     values.append(agent_name)
 
                 if avatar is not None:
-                    updates.append("avatar = %s")
+                    updates.append("avatar_picture = %s")
                     values.append(avatar)
 
                 if user_data is not None:
