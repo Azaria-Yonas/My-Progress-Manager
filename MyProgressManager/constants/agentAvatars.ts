@@ -16,7 +16,7 @@ export const AGENT_AVATARS: AgentAvatar[] = [
   { key: "agent5", source: require("../assets/images/agent5.png") },
 ];
 
-export const DEFAULT_AGENT_NAME = "Assistant";
+export const DEFAULT_AGENT_NAME = "Assistant Agent";
 
 export function normalizeAvatarKey(value?: string | null): string | null {
   if (typeof value !== "string") return null;
