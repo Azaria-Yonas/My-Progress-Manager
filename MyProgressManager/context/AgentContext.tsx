@@ -180,19 +180,12 @@ export function AgentProvider({ children }: { children: ReactNode }) {
         behavior: input.behavior,
       };
 
-      let remoteError: string | null = null;
-      try {
-        if (existsRemoteRef.current) await AgentService.update(input);
-        else await AgentService.configure(input);
-        existsRemoteRef.current = true;
-      } catch (err: any) {
-        remoteError = err?.message
-          ? `Saved on this device. Sync failed: ${err.message}`
-          : "Saved on this device. We could not sync it to the server yet.";
-      }
+      if (existsRemoteRef.current) await AgentService.update(input);
+      else await AgentService.configure(input);
+      existsRemoteRef.current = true;
 
       setConfig(next);
-      setSyncError(remoteError);
+      setSyncError(null);
       if (userId) {
         await writeCache(userId, next);
         try {

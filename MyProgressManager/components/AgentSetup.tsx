@@ -214,8 +214,7 @@ export default function AgentSetup({
   const buildBehavior = () => {
     const behavior: Record<string, string> = {};
     questions.forEach((question) => {
-      const value = (answers[question.id] ?? "").trim();
-      if (value) behavior[question.prompt] = value;
+      behavior[question.prompt] = (answers[question.id] ?? "").trim();
     });
     return behavior;
   };
@@ -252,7 +251,11 @@ export default function AgentSetup({
   const question = !isIdentityStep && !isSummaryStep ? questions[step - 1] : null;
 
   const trimmedName = name.trim();
-  const canContinue = isIdentityStep ? trimmedName.length > 0 : true;
+  const canContinue = isIdentityStep
+    ? trimmedName.length > 0 && !!avatar
+    : question
+    ? (answers[question.id] ?? "").trim().length > 0
+    : true;
   const selectedSource = getAgentAvatarSource(avatar);
   const behaviorEntries = Object.entries(buildBehavior());
 
@@ -483,35 +486,27 @@ export default function AgentSetup({
           {trimmedName || "Your AI"}
         </Text>
         <Text style={[styles.summarySubtitle, { fontSize: fontSize(13), lineHeight: fontSize(19) }]}>
-          {behaviorEntries.length > 0
-            ? `${behaviorEntries.length} preference${
-                behaviorEntries.length === 1 ? "" : "s"
-              } saved. You can change any of this later from your profile.`
-            : "You skipped the questions, and that is fine. You can add preferences later from your profile."}
+          {`${behaviorEntries.length} preference${
+            behaviorEntries.length === 1 ? "" : "s"
+          } saved. You can change any of this later from your profile.`}
         </Text>
       </View>
 
-      {behaviorEntries.length === 0 ? (
-        <Text style={[styles.summaryEmpty, { fontSize: fontSize(13.5) }]}>
-          No preferences yet.
-        </Text>
-      ) : (
-        behaviorEntries.map(([prompt, answer]) => (
-          <View key={prompt} style={styles.summaryRow}>
-            <Text style={[styles.summaryQuestion, { fontSize: fontSize(12.5) }]}>
-              {prompt}
-            </Text>
-            <Text
-              style={[
-                styles.summaryAnswer,
-                { fontSize: fontSize(14.5), fontWeight: fontWeight(), lineHeight: fontSize(20) },
-              ]}
-            >
-              {answer}
-            </Text>
-          </View>
-        ))
-      )}
+      {behaviorEntries.map(([prompt, answer]) => (
+        <View key={prompt} style={styles.summaryRow}>
+          <Text style={[styles.summaryQuestion, { fontSize: fontSize(12.5) }]}>
+            {prompt}
+          </Text>
+          <Text
+            style={[
+              styles.summaryAnswer,
+              { fontSize: fontSize(14.5), fontWeight: fontWeight(), lineHeight: fontSize(20) },
+            ]}
+          >
+            {answer}
+          </Text>
+        </View>
+      ))}
     </>
   );
 

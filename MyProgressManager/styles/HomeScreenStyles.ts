@@ -37,6 +37,26 @@ export const createHomeScreenStyles = (theme: any) =>
       color: theme.text,
     },
 
+    weekStripContainer: {
+      position: "absolute",
+      left: 0,
+      right: 0,
+      zIndex: 9,
+      backgroundColor: theme.background,
+    },
+
+    emptyState: {
+      alignItems: "center",
+      justifyContent: "center",
+      paddingHorizontal: scale(32),
+      paddingVertical: verticalScale(40),
+    },
+
+    emptyStateText: {
+      color: theme.textMuted,
+      textAlign: "center",
+    },
+
     container: {
       flex: 1,
       backgroundColor: theme.background,

@@ -1,16 +1,9 @@
 
 
 
-class agent:
-    def __init__(self):
-        pass
+class Agent:
+    def __init__ (self, model):
+        self._model = model
 
-    def message(self):
-        pass
-
-    def call_tools(self):
-        pass
-
-    def get_resources(self):
-        pass
-
+    def send_message(self, message):
+        return self._model.ask(message)

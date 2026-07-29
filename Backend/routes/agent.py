@@ -1,14 +1,15 @@
 from flask import jsonify, request
 import psycopg as pg
+from psycopg.types.json import Jsonb
 from clients.psycopg_connect import psycopg_connect
 
 
-def get_data(user_id):
+def get_agent(user_id):
     try:
         with psycopg_connect() as conn:
             with conn.cursor() as curr:
                 curr.execute("""
-                    SELECT data FROM public.agent WHERE user_id = %s
+                    SELECT agent_name, avatar_picture, user_data FROM public.agent WHERE user_id = %s
                 """,
                 (user_id,))
 
@@ -16,33 +17,53 @@ def get_data(user_id):
                 if row is None:
                     return jsonify({"Error": "No data found"}), 400
 
-                return jsonify(row[0])
+                return jsonify(row)
     except pg.Error as e:
         return jsonify({"Error: ": str(e)}), 400
     
 
-def append_data(user_id):
+def configure_agent(user_id, agent_name, avatar_picture, user_data):
     try:
-        data = request.json
         with psycopg_connect() as conn:
             with conn.cursor() as curr:
                 curr.execute("""
-                    SELECT EXISTS (SELECT 1 FROM public.agent WHERE user_id = %s)
+                    SELECT user_id FROM public.agent WHERE user_id = %s
                 """,
                 (user_id,))
 
-                row = curr.fetchone()
-                if (row is not None and row[0]):
+                if curr.fetchone() is None:
                     curr.execute("""
-                        UPDATE public.agent SET data = %s WHERE user_id = %s
+                        INSERT INTO public.agent (user_id, agent_name, avatar_picture, user_data) VALUES (%s, %s, %s, %s)
                     """,
-                    (data, user_id))
+                    (user_id, agent_name, avatar_picture, Jsonb(user_data)))
                 else:
                     curr.execute("""
-                        INSERT INTO public.agent (user_id, data) VALUES (%s, %s)
+                        UPDATE public.agent
+                        SET agent_name = %s, avatar_picture = %s, user_data = %s
+                        WHERE user_id = %s
                     """,
-                    (user_id, data))
+                    (agent_name, avatar_picture, Jsonb(user_data), user_id))
 
-                return jsonify({"message": "Data saved successfully"})
+                return jsonify({"message": "Agent configured successfully"})
     except pg.Error as e:
         return jsonify({"Error: ": str(e)}), 400
+
+def update_agent(user_id, agent_name, avatar_picture, user_data):
+    try:
+        with psycopg_connect() as conn:
+            with conn.cursor() as curr:
+                curr.execute("""
+                    UPDATE public.agent
+                    SET agent_name = %s, avatar_picture = %s, user_data = %s
+                    WHERE user_id = %s
+                    RETURNING agent_name, avatar_picture, user_data
+                """,
+                (agent_name, avatar_picture, Jsonb(user_data), user_id))
+
+                row = curr.fetchone()
+                if row is None:
+                    return jsonify({"Error": "Agent not found"}), 404
+
+                return jsonify(row)
+    except pg.Error as e:
+        return jsonify({"Error": str(e)}), 400

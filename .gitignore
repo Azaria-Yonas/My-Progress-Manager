@@ -41,8 +41,12 @@ MyProgressManager/lib/
 
 
 # Python
-Backend/__pycache__/
-Backend/*.pyc
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
 Backend/.env
 Backend/.venv/
 Backend/venv/
@@ -56,8 +60,6 @@ Backend/node_modules/
 Backend/env/.env
 
 
-
-Backend\auth\__pycache__/
 
 MyProgressManager/constants/config.ts
 
@@ -73,7 +75,7 @@ desktop.ini
 
 
 
-*/__pycache__/
+**/__pycache__/
 
 global.d.ts
 
