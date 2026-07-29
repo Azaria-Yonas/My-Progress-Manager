@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   Animated,
+  Image,
   Modal,
   FlatList,
   KeyboardAvoidingView,
@@ -14,18 +15,28 @@ import {
   ActivityIndicator,
   Easing,
   ListRenderItemInfo,
+  PanResponder,
+  PanResponderGestureState,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
 import { useThemeMode } from "../context/ThemeContext";
 import { useTypography } from "../context/TypographyContext";
+import { useAgent } from "../context/AgentContext";
 import { ApiError } from "../services/api";
 import { AgentService, AgentMessage } from "../services/agent";
 import {
   createAgentChatStyles,
+  clampFabValue,
+  snapFabPosition,
   AGENT_PANEL_HEIGHT,
   AGENT_FAB_SHIFT,
+  AGENT_FAB_REST_TOP,
+  AGENT_FAB_MAX_X,
+  AGENT_FAB_MIN_Y,
+  AGENT_FAB_MAX_Y,
+  AGENT_FAB_DEFAULT_POSITION,
 } from "../styles/AgentChatStyles";
 import { scale } from "../utils/responsive";
 
@@ -42,9 +53,12 @@ const SUGGESTIONS = [
 const GRADIENT_START = { x: 0, y: 0 };
 const GRADIENT_END = { x: 1, y: 1 };
 
+const DRAG_THRESHOLD = 5;
+
 export default function AgentChat({ scrollY }: AgentChatProps) {
   const { theme } = useThemeMode();
   const { fontSize, fontWeight } = useTypography();
+  const { agentName, avatarSource, fabPosition, setFabPosition } = useAgent();
   const styles = createAgentChatStyles(theme);
 
   const [mounted, setMounted] = useState(false);
@@ -61,11 +75,101 @@ export default function AgentChat({ scrollY }: AgentChatProps) {
 
   const staticScroll = useRef(new Animated.Value(0)).current;
   const scrollSource = scrollY ?? staticScroll;
-  const fabTranslate = scrollSource.interpolate({
-    inputRange: [0, 70],
-    outputRange: [0, -AGENT_FAB_SHIFT],
-    extrapolate: "clamp",
-  });
+
+  const positionRef = useRef(fabPosition ?? AGENT_FAB_DEFAULT_POSITION);
+  const fabPos = useRef(new Animated.ValueXY(positionRef.current)).current;
+  const dragScale = useRef(new Animated.Value(1)).current;
+  const draggingRef = useRef(false);
+
+  useEffect(() => {
+    if (!fabPosition) return;
+    if (
+      fabPosition.x === positionRef.current.x &&
+      fabPosition.y === positionRef.current.y
+    ) {
+      return;
+    }
+    positionRef.current = fabPosition;
+    fabPos.setValue(fabPosition);
+  }, [fabPosition, fabPos]);
+
+  useEffect(() => {
+    if (fabPosition) return;
+
+    const id = scrollSource.addListener(({ value }) => {
+      if (draggingRef.current) return;
+      const progress = clampFabValue(value, 0, 70) / 70;
+      const next = {
+        x: AGENT_FAB_DEFAULT_POSITION.x,
+        y: AGENT_FAB_REST_TOP - progress * AGENT_FAB_SHIFT,
+      };
+      positionRef.current = next;
+      fabPos.setValue(next);
+    });
+
+    return () => scrollSource.removeListener(id);
+  }, [fabPosition, scrollSource, fabPos]);
+
+  const finishDrag = (gesture: PanResponderGestureState) => {
+    draggingRef.current = false;
+    const target = snapFabPosition(
+      positionRef.current.x + gesture.dx,
+      positionRef.current.y + gesture.dy
+    );
+    positionRef.current = target;
+    setFabPosition(target);
+
+    Animated.parallel([
+      Animated.spring(fabPos, {
+        toValue: target,
+        useNativeDriver: false,
+        friction: 7,
+        tension: 70,
+      }),
+      Animated.spring(dragScale, {
+        toValue: 1,
+        useNativeDriver: false,
+        friction: 6,
+        tension: 120,
+      }),
+    ]).start();
+  };
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponderCapture: () => false,
+      onMoveShouldSetPanResponderCapture: (_evt, gesture) =>
+        Math.abs(gesture.dx) > DRAG_THRESHOLD ||
+        Math.abs(gesture.dy) > DRAG_THRESHOLD,
+      onPanResponderGrant: () => {
+        draggingRef.current = true;
+        Animated.spring(dragScale, {
+          toValue: 1.12,
+          useNativeDriver: false,
+          friction: 6,
+          tension: 120,
+        }).start();
+      },
+      onPanResponderMove: (_evt, gesture) => {
+        fabPos.setValue({
+          x: clampFabValue(positionRef.current.x + gesture.dx, 0, AGENT_FAB_MAX_X),
+          y: clampFabValue(
+            positionRef.current.y + gesture.dy,
+            AGENT_FAB_MIN_Y,
+            AGENT_FAB_MAX_Y
+          ),
+        });
+      },
+      onPanResponderRelease: (_evt, gesture) => finishDrag(gesture),
+      onPanResponderTerminate: (_evt, gesture) => finishDrag(gesture),
+    })
+  ).current;
+
+  const fabTransform = [
+    { translateX: fabPos.x },
+    { translateY: fabPos.y },
+    { scale: dragScale },
+  ];
 
   const gradientColors = [theme.primary, theme.accent] as const;
 
@@ -216,13 +320,19 @@ export default function AgentChat({ scrollY }: AgentChatProps) {
   const renderEmpty = () => (
     <View style={styles.emptyWrap}>
       <View style={styles.emptyAvatar}>
-        <LinearGradient
-          colors={gradientColors}
-          start={GRADIENT_START}
-          end={GRADIENT_END}
-          style={styles.avatarGradient}
-        />
-        <Feather name="message-circle" size={scale(30)} color={theme.onPrimary} />
+        {avatarSource ? (
+          <Image source={avatarSource} style={styles.avatarImage} resizeMode="cover" />
+        ) : (
+          <>
+            <LinearGradient
+              colors={gradientColors}
+              start={GRADIENT_START}
+              end={GRADIENT_END}
+              style={styles.avatarGradient}
+            />
+            <Feather name="message-circle" size={scale(30)} color={theme.onPrimary} />
+          </>
+        )}
       </View>
 
       <Text style={[styles.emptyTitle, { fontSize: fontSize(21), fontWeight: fontWeight() }]}>
@@ -252,8 +362,8 @@ export default function AgentChat({ scrollY }: AgentChatProps) {
   return (
     <>
       <Animated.View
-        style={[styles.fabWrapper, { transform: [{ translateY: fabTranslate }] }]}
-        pointerEvents="box-none"
+        style={[styles.fabWrapper, { transform: fabTransform }]}
+        {...panResponder.panHandlers}
       >
         <TouchableOpacity
           activeOpacity={0.85}
@@ -261,14 +371,21 @@ export default function AgentChat({ scrollY }: AgentChatProps) {
           onPress={openChat}
           accessibilityRole="button"
           accessibilityLabel="Open AI assistant"
+          accessibilityHint="Drag to move it to the left or right edge of the screen"
         >
-          <LinearGradient
-            colors={gradientColors}
-            start={GRADIENT_START}
-            end={GRADIENT_END}
-            style={styles.fabGradient}
-          />
-          <Feather name="message-circle" size={scale(22)} color={theme.onPrimary} />
+          {avatarSource ? (
+            <Image source={avatarSource} style={styles.avatarImage} resizeMode="cover" />
+          ) : (
+            <>
+              <LinearGradient
+                colors={gradientColors}
+                start={GRADIENT_START}
+                end={GRADIENT_END}
+                style={styles.fabGradient}
+              />
+              <Feather name="message-circle" size={scale(22)} color={theme.onPrimary} />
+            </>
+          )}
         </TouchableOpacity>
       </Animated.View>
 
@@ -289,18 +406,24 @@ export default function AgentChat({ scrollY }: AgentChatProps) {
 
             <View style={styles.header}>
               <View style={styles.headerAvatar}>
-                <LinearGradient
-                  colors={gradientColors}
-                  start={GRADIENT_START}
-                  end={GRADIENT_END}
-                  style={styles.avatarGradient}
-                />
-                <Feather name="message-circle" size={scale(19)} color={theme.onPrimary} />
+                {avatarSource ? (
+                  <Image source={avatarSource} style={styles.avatarImage} resizeMode="cover" />
+                ) : (
+                  <>
+                    <LinearGradient
+                      colors={gradientColors}
+                      start={GRADIENT_START}
+                      end={GRADIENT_END}
+                      style={styles.avatarGradient}
+                    />
+                    <Feather name="message-circle" size={scale(19)} color={theme.onPrimary} />
+                  </>
+                )}
               </View>
 
               <View style={styles.headerTextWrap}>
                 <Text style={[styles.headerTitle, { fontSize: fontSize(18), fontWeight: fontWeight() }]}>
-                  Assistant
+                  {agentName}
                 </Text>
                 <Text style={[styles.headerSubtitle, { fontSize: fontSize(12.5) }]}>
                   Your progress companion
@@ -348,7 +471,7 @@ export default function AgentChat({ scrollY }: AgentChatProps) {
                   style={[styles.input, { fontSize: fontSize(15.5) }]}
                   value={input}
                   onChangeText={setInput}
-                  placeholder="Message assistant…"
+                  placeholder={`Message ${agentName}…`}
                   placeholderTextColor={theme.textMuted}
                   multiline
                   editable={!sending}
