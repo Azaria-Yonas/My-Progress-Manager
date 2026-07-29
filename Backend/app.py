@@ -30,7 +30,7 @@ def gme():
         id = authenticate_userid(request)
         return getme(id)
     except Exception as e:
-        return str(e), 400
+        return jsonify({"Error": str(e)}), 400
 
 @app.route("/logout", methods = ["POST"])                       # Sign Out
 def lout():
@@ -41,7 +41,7 @@ def lout():
         token = auth_header.split(" ")[1]
         return signout(token)
     except Exception as e:
-        return str(e), 400
+        return jsonify({"Error": str(e)}), 400
 
 
 @app.route("/tasks", methods = ["GET"])                         # Fetch Tasks
@@ -50,7 +50,7 @@ def ftasks():
         id = authenticate_userid(request)
         return fecth_tasks(id)
     except Exception as e:
-        return str(e), 400
+        return jsonify({"Error": str(e)}), 400
     
 @app.route("/tasks", methods = ["POST"])                        # Create Tasks
 def ctasks():
@@ -62,7 +62,7 @@ def ctasks():
         id = authenticate_userid(request)
         return create_task(id, title, color, due_date)
     except Exception as e:
-        return str(e), 400
+        return jsonify({"Error": str(e)}), 400
     
     
 @app.route("/tasks/<id>", methods = ["PATCH"])                  # Update Tasks
@@ -72,7 +72,7 @@ def utask(id):
         user_id = authenticate_userid(request)
         return update_task(user_id, id, data)
     except Exception as e:
-        return str(e), 400
+        return jsonify({"Error": str(e)}), 400
 
 
 @app.route("/tasks/<id>", methods = ["DELETE"])                 # Delete Task
@@ -81,7 +81,7 @@ def dtask(id):
         user_id = authenticate_userid(request)
         return delete_task(user_id, id)
     except Exception as e:
-        return str(e), 400
+        return jsonify({"Error": str(e)}), 400
 
 @app.route("/tasks/<id>/complete", methods = ["POST"])          # Complete Task 
 def ctask(id):
@@ -89,14 +89,14 @@ def ctask(id):
         user_id = authenticate_userid(request)
         return complete_task(user_id, id)
     except Exception as e:
-        return str(e), 400
+        return jsonify({"Error": str(e)}), 400
 @app.route("/tasks/<id>/undo-complete", methods = ["POST"])     # Undo-Complete Task 
 def uctask(id):
     try:
         user_id = authenticate_userid(request)
         return undo_complete_task(user_id, id)
     except Exception as e:
-        return str(e), 400
+        return jsonify({"Error": str(e)}), 400
 
     
 @app.route("/tasks/reorder", methods = ["PATCH"])               # Reorder Tasks
@@ -107,7 +107,7 @@ def rtask():
         user_id = authenticate_userid(request)
         return reorder_tasks(user_id, tasks)
     except Exception as e:
-        return str(e), 400
+        return jsonify({"Error": str(e)}), 400
     
 
 @app.route("/streaks", methods = ["GET"])                       # Fetch Streaks
@@ -116,7 +116,7 @@ def fstreaks():
         id = authenticate_userid(request)
         return fecth_streaks(id)
     except Exception as e:
-        return str(e), 400
+        return jsonify({"Error": str(e)}), 400
     
 @app.route("/streaks", methods = ["POST"])                      # Create Streaks
 def cstreaks():
@@ -127,7 +127,7 @@ def cstreaks():
         id = authenticate_userid(request)
         return create_streak(id, title, duration_seconds)
     except Exception as e:
-        return str(e), 400
+        return jsonify({"Error": str(e)}), 400
 
 @app.route("/streaks/<id>", methods = ["PATCH"])                # Update Streaks
 def ustreak(id):
@@ -136,7 +136,7 @@ def ustreak(id):
         user_id = authenticate_userid(request)
         return update_streak(user_id, id, data)
     except Exception as e:
-        return str(e), 400
+        return jsonify({"Error": str(e)}), 400
 
 @app.route("/streaks/<id>", methods = ["DELETE"])               # Delete Streaks
 def dstreak(id):
@@ -144,7 +144,7 @@ def dstreak(id):
         user_id = authenticate_userid(request)
         return delete_streak(user_id, id)
     except Exception as e:
-        return str(e), 400
+        return jsonify({"Error": str(e)}), 400
 
 @app.route("/streaks/<id>/tap", methods = ["POST"])             # Increment Streaks
 def tstreak(id):
@@ -152,7 +152,7 @@ def tstreak(id):
         user_id = authenticate_userid(request)
         return tap_streak(user_id, id)
     except Exception as e:
-        return str(e), 400
+        return jsonify({"Error": str(e)}), 400
 
 @app.route("/streaks/<id>/expire", methods = ["POST"])          # Expired Streaks
 def estreak(id):
@@ -160,7 +160,7 @@ def estreak(id):
         user_id = authenticate_userid(request)
         return expire_streak(user_id, id)
     except Exception as e:
-        return str(e), 400
+        return jsonify({"Error": str(e)}), 400
 
 @app.route("/streaks/<id>/pause", methods = ["POST"])           # Pause Streak
 def pstreak(id):
@@ -170,7 +170,7 @@ def pstreak(id):
         user_id = authenticate_userid(request)
         return pause_streak(user_id, id, paused)
     except Exception as e:
-        return str(e), 400
+        return jsonify({"Error": str(e)}), 400
 
 @app.route("/streaks/<id>/complete", methods = ["POST"])
 def cstreak(id):
@@ -183,7 +183,7 @@ def cstreak(id):
         user_id = authenticate_userid(request)
         return complete_streak(user_id, id, total_intervals, successful_intervals, failed_intervals, calendar_data)
     except Exception as e:
-        return str(e), 400
+        return jsonify({"Error": str(e)}), 400
 
 @app.route("/stats/tasks", methods = ["GET"])                   # Tasks Analytics
 def gctasks():
@@ -191,7 +191,7 @@ def gctasks():
         id = authenticate_userid(request)
         return tasks_analytics(id)
     except Exception as e:
-        return str(e), 400
+        return jsonify({"Error": str(e)}), 400
     
 
 @app.route("/stats/streaks", methods = ["GET"])                 # Streaks Analytics
@@ -200,16 +200,18 @@ def gcstreaks():
         id = authenticate_userid(request)
         return streaks_analytics(id)
     except Exception as e:
-        return str(e), 400
+        return jsonify({"Error": str(e)}), 400
     
     
 @app.route("/agent", methods = ["GET"])                          # Get Agent
 def gagent():
     try:
         id = authenticate_userid(request)
+        if id is None:
+            return jsonify({"Error": "Unauthorized"}), 401
         return get_agent(id)
     except Exception as e:
-        return str(e), 400
+        return jsonify({"Error": str(e)}), 400
 
 @app.route("/agent", methods = ["POST"])                         # Configure Agent
 def cagent():
@@ -219,31 +221,37 @@ def cagent():
         picture = data["avatar_picture"]
         text = data["user_data"]
         id = authenticate_userid(request)
+        if id is None:
+            return jsonify({"Error": "Unauthorized"}), 401
         return configure_agent(id, name, picture, text)
     except Exception as e:
-        return str(e), 400
+        return jsonify({"Error": str(e)}), 400
 
 
 @app.route("/agent", methods = ["PUT"])                         # Update Agent
 def uagent():
     try:
         data = request.json
-        name = data.get("agent_name")
-        picture = data.get("avatar_picture")
-        text = data.get("user_data")
+        name = data["agent_name"]
+        picture = data["avatar_picture"]
+        text = data["user_data"]
         id = authenticate_userid(request)
+        if id is None:
+            return jsonify({"Error": "Unauthorized"}), 401
         return update_agent(id, name, picture, text)
     except Exception as e:
-        return str(e), 400
+        return jsonify({"Error": str(e)}), 400
 
-    
+
 @app.route("/agent/message", methods = ["POST"])                 # Message Agent
 def magent():
     try:
         id = authenticate_userid(request)
+        if id is None:
+            return jsonify({"Error": "Unauthorized"}), 401
         return "NOT IMPLEMENTED YET"
     except Exception as e:
-        return str(e), 400
+        return jsonify({"Error": str(e)}), 400
 
 
 @app.route("/")

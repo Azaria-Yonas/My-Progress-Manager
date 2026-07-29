@@ -92,6 +92,13 @@ export async function request<T = unknown>(
       (parsed && typeof parsed === "object" && "error" in parsed
         ? (parsed as any).error
         : null) ||
+      (parsed && typeof parsed === "object" && "Error" in parsed
+        ? (parsed as any).Error
+        : null) ||
+      (parsed && typeof parsed === "object" && "Error: " in parsed
+        ? (parsed as any)["Error: "]
+        : null) ||
+      (typeof parsed === "string" && parsed.trim() ? parsed.trim() : null) ||
       `Request failed with status ${response.status}`;
     throw new ApiError(String(message), response.status, parsed);
   }
