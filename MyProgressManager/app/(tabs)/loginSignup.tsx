@@ -46,7 +46,7 @@ export default function GetStarted() {
 
               <Text style={styles.introText}>
 
-MyProgressManager helps you build better habits, stay consistent, and track your progress over time. Whether you're managing daily tasks, personal goals, or long-term streaks, the app provides simple tools to help you stay focused and organized.{"\n"}
+Ledger helps you build better habits, stay consistent, and track your progress over time. Whether you're managing daily tasks, personal goals, or long-term streaks, the app provides simple tools to help you stay focused and organized.{"\n"}
 Track your routines, monitor your progress, and view insights that help you stay motivated. The Stats page gives you a clear view of your consistency, while streak tracking encourages accountability and long-term growth.{"\n"}
 Getting started is simple:{"\n"}
 Create an account or sign in{"\n"}
@@ -56,7 +56,7 @@ View your stats and consistency insights{"\n"}
 Build momentum one day at a time{"\n"}
 Stay consistent. Stay motivated. Keep progressing.{"\n"}
 Terms of Service:{"\n"}
-Use MyProgressManager at your own risk. The app is provided "as is" without any warranties. We are not liable for any data loss or issues that may arise. By using the app, you agree to our terms and privacy policy.{"\n"}
+Use Ledger at your own risk. The app is provided "as is" without any warranties. We are not liable for any data loss or issues that may arise. By using the app, you agree to our terms and privacy policy.{"\n"}
 
               </Text>
 
