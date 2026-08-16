@@ -74,7 +74,7 @@ export default function Index() {
         />
 
         <Animated.Text style={[styles.title, titleAnimatedStyle]}>
-          MY Progress Manager
+          Ledger
         </Animated.Text>
 
         <Animated.Text style={[styles.subtitle, subtitleAnimatedStyle]}>

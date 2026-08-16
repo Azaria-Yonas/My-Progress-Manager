@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "",
-    "slug": "MyProgressManager",
+    "name": "Ledger",
+    "slug": "Ledger",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/suitcase.png",
-    "scheme": "myprogressmanager",
+    "scheme": "ledger",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
