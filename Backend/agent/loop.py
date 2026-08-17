@@ -1,5 +1,5 @@
 
-from Backend.agent.models.openai_connector import ChatModel, BaseModel, SummaryModel
+from agent.models.openai_connector import ChatModel, BaseModel, SummaryModel
 
 from message import Message
 
