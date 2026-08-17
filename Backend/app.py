@@ -253,7 +253,7 @@ def magent():
         id = authenticate_userid(request)
         data = request.json  
         
-        chat = data["chat"]
+        chat = data["chat_history"] 
         if id is None:
             return jsonify({"Error": "Unauthorized"}), 401
         return chat_loop(chat)
