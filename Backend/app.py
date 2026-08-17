@@ -251,7 +251,8 @@ def uagent():
 def magent():
     try:
         id = authenticate_userid(request)
-        data = request.json()
+        data = request.json  
+        
         chat = data["chat"]
         if id is None:
             return jsonify({"Error": "Unauthorized"}), 401
