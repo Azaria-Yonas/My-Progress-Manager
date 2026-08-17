@@ -8,7 +8,7 @@ from routes.tasks import fecth_tasks, create_task, update_task, delete_task, com
 from routes.streaks import fecth_streaks, create_streak, update_streak, delete_streak, tap_streak, expire_streak, pause_streak, complete_streak
 from routes.stats import tasks_analytics, streaks_analytics
 from routes.agent import configure_agent, get_agent, update_agent
-# from agent.agent import message_agent
+from agent.loop import chat_loop
  
 app = Flask(__name__)
 
@@ -251,9 +251,11 @@ def uagent():
 def magent():
     try:
         id = authenticate_userid(request)
+        data = request.json()
+        chat = data["chat"]
         if id is None:
             return jsonify({"Error": "Unauthorized"}), 401
-        return "NOT IMPLEMENTED YET"
+        return chat_loop(chat)
     except Exception as e:
         return error_response(e)
 
