@@ -3,7 +3,7 @@ from agent.models.openai_connector import ChatModel, BaseModel, SummaryModel
 
 from agent.message import Message
 
-from agent import Agent
+from agent.agent import Agent
 
 
 orchestrator = Agent(BaseModel)
