@@ -5,7 +5,7 @@
 import { API_BASE_URL } from "../constants/config";
 import { getToken } from "./tokenStorage";
 
-const REQUEST_TIMEOUT_MS = 20000;
+const REQUEST_TIMEOUT_MS = 60000;
 
 export class ApiError extends Error {
   status: number;
