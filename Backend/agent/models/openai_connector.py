@@ -1,46 +1,69 @@
 from openai import OpenAI
-
 from config import OPENAI_KEY
+from routes.agent import get_agent
+
+
 
 class OpenAIModel:
-    def __init__(self, model, tools):
-        self.client = OpenAI(api_key=OPENAI_KEY)
-        self._model = model
-        self._tools = tools
-        
-    @property
-    def model(self):
-        return self._model
+    def __init__(self):
+        self._client = OpenAI(api_key=OPENAI_KEY)
 
-    @model.setter
-    def model(self, value):
-        self._model = value
+    def build_message(self, 
+        bootstrap = None, 
+        history= None, 
+        tools = None, 
+        resources= None,
+        model = None
+    ):
 
-    @property
-    def tools(self):
-        return self._tools
-
-    @model.setter
-    def model(self, tools):
-        self._tools = tools
-
-    def ask(self, prompt):
-        response = self.client.responses.create(
-            model=self._model,
-            tools=self._tools,
-            input=prompt
-        )
-        return response      
-
-
-# from agent.tools.tools import get_tools
-
-
-
-# agent = OpenAIModel("gpt-5.6", tools=get_tools())
-
-# print(agent.ask("this is a system check send me a list of all the tools that are available to you"))
-
+        pass
         
 
+
+
+
+
+
+
+
+class ChatModel(OpenAIModel):
+    """This Model is Specialized in Handling certain tasks and primarily the Chat interface"""
+
+    def __init__ (self):
+        self._model = "gpt-5-nano"
+
+    # def user_data(self, user_id):
+    #     data = get_agent(user_id)
+    #     return data[2]
         
+        
+
+
+
+    
+
+
+
+class BaseModel(OpenAIModel): 
+    """This is the primary model, capable of reasoning"""   
+
+    def __init__ (self):
+        self._model = "gpt-5-mini"
+
+
+
+class SummaryModel(OpenAIModel):
+    """The summary model exists exclusively to reduce costs"""
+
+
+    def __init__ (self):
+        self._model = "gpt-5-nano"
+
+
+
+
+
+
+
+
+    
