@@ -1,7 +1,7 @@
 
 from agent.models.openai_connector import ChatModel, BaseModel, SummaryModel
 
-from message import Message
+from agent.message import Message
 
 from agent import Agent
 
