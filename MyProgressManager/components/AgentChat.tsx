@@ -233,15 +233,17 @@ export default function AgentChat({ scrollY }: AgentChatProps) {
       text: trimmed,
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    const nextMessages = [...messages, userMessage];
+    setMessages(nextMessages);
     setInput("");
     setSending(true);
     scrollToEnd();
 
     try {
-      const reply = await AgentService.sendMessage(trimmed, {
-        sessionId: sessionRef.current,
-      });
+      const reply = await AgentService.sendMessage(
+        nextMessages.map(({ role, text }) => ({ role, text })),
+        { sessionId: sessionRef.current }
+      );
       setMessages((prev) => [
         ...prev,
         {
