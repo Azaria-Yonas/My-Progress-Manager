@@ -14,6 +14,11 @@ export interface SendMessageOptions {
   signal?: AbortSignal;
 }
 
+export interface ChatHistoryMessage {
+  role: AgentRole;
+  text: string;
+}
+
 const REPLY_KEYS = [
   "reply",
   "message",
@@ -116,9 +121,12 @@ function toRequestBody(input: AgentConfigInput) {
 }
 
 export const AgentService = {
-  async sendMessage(text: string, options: SendMessageOptions = {}): Promise<string> {
+  async sendMessage(
+    chatHistory: ChatHistoryMessage[],
+    options: SendMessageOptions = {}
+  ): Promise<string> {
     const payload = {
-      message: text,
+      chat_history: chatHistory,
       session_id: options.sessionId,
     };
 
