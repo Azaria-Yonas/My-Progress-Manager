@@ -2,8 +2,15 @@
 
 
 class Agent:
-    def __init__ (self, model):
-        self._model = model
+    
+    def __init__(self, model):
+        self._OpenAIModel = model
 
-    def send_message(self, message):
-        return self._model.ask(message)
+    def ask(self, message):
+        response = self._OpenAIModel.client.responses.create (
+            model=self._OpenAIModel.model,
+            tools=message.tools,
+            input=message.chat_history
+        )
+        return response.output_text    
+
