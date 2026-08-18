@@ -256,7 +256,7 @@ def magent():
         chat = data["chat_history"] 
         if id is None:
             return jsonify({"Error": "Unauthorized"}), 401
-        return chat_loop(chat)
+        return chat_loop(str(chat))
     except Exception as e:
         return error_response(e)
 
