@@ -1,0 +1,20 @@
+[
+    {
+        "type": "function",
+        "name": "wakeup_orchestrator",
+        "description": "Handoff task to Orchestrator",
+        "parameters": {
+            "type": "object", 
+            "properties": { 
+                "chat": { 
+                    "type": "string",
+                    "description": "Current chat between the agent and the user" 
+                }
+            },
+            "required": ["chat"],
+            "additionalProperties": false
+        },
+        "strict": true
+    }
+
+]

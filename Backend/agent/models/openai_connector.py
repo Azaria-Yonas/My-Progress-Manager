@@ -22,7 +22,7 @@ class OpenAIModel:
 
 
         )
-        return response.output_text  
+        return response   
 
 
 

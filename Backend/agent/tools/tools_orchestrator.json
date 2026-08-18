@@ -20,11 +20,11 @@
             "properties": { 
                 "title": { 
                     "type": "string",
-                    "description": "The title of the task" 
+                    "description": "A short title for the task" 
                 }, 
                 "color": {
                     "type": "string",
-                    "description": "The color tag associated with the task, e.g. a hex code or color name" 
+                    "description": "The color of the tasks component given as a hex code" 
                 },
                 "due_date": { 
                     "type": "string",
