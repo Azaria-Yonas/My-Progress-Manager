@@ -35,10 +35,22 @@ def chat_loop(message):
     agent = Agent(model=model)
     chat_agent = build_chat(agent)
 
-    chat_agent.ask(message)
+    response = chat_agent.ask(message)
+
+    data = response.json
+
+    output = data["output"]
+
+    for k in output:
+        if k == "function_call":
+            return orchestrator_loop()
+
+    return response.output_text
 
 
-def orchestrator_loop(message):
+
+
+def orchestrator_loop():
     return "Orchestrator Agent Reached"
 
 
