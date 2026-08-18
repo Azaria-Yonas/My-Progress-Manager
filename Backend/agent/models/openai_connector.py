@@ -16,8 +16,8 @@ class OpenAIModel:
 
         response = self._client.responses.create (
             model=self._model,
-            tools=message.tools,
-            conversation=message.chat_history,
+            # tools=message.tools,
+            # conversation=message.chat_history,
             input=message.input
 
 
