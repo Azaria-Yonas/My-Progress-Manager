@@ -1,34 +1,61 @@
 
-from agent.models.openai_connector import ChatModel, BaseModel, SummaryModel
+from agent.models.openai_connector import OpenAIModel
 
 from agent.message import Message
 
 from agent.agent import Agent
 
 
-orchestrator = Agent(BaseModel)
-
-summarizer = Agent(SummaryModel)
-
-chat = Agent(ChatModel)
-BOOTSTRAP = "agent/agent_bootstrap/chat"
 
 
 
 
-def chat_loop(chat_history):
+def build_orchestrator (Agent, Model):
+    pass 
 
-    message = Message(bootstrap=BOOTSTRAP, history=chat_history)
+def build_chat (agent: Agent):
 
-    return chat.ask(Message)
-
+    return agent
 
     
 
+def build_summarizer (Agent, Model):
+    pass
 
 
 
 
-def orchestrator_loop():
-    print("orchestrator agent activated")
+def chat_loop(message):
+    model = OpenAIModel("gp")
+    agent = Agent(model=model)
+    chat_agent = build_chat(agent)
+
+    return chat_agent.ask(message)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     
