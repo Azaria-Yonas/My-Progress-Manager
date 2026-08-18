@@ -26,7 +26,7 @@ def build_summarizer (Agent, Model):
 
 
 def chat_loop(message):
-    model = OpenAIModel("gp")
+    model = OpenAIModel("gpt-5-nano")
     agent = Agent(model=model)
     chat_agent = build_chat(agent)
 
