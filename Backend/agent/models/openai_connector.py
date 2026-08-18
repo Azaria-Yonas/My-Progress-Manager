@@ -18,7 +18,7 @@ class OpenAIModel:
             model=self._model,
             # tools=message.tools,
             # conversation=message.chat_history,
-            input=message.input
+            input=message
 
 
         )
