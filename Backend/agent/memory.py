@@ -6,7 +6,7 @@ import json
 
 class Memory:
     def __init__(self, 
-        bootstrap = "", 
+        bootstrap = {}, 
         history=  {}, 
         tools = {}, 
         user_data= {},
