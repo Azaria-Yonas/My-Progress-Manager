@@ -9,8 +9,14 @@ from routes.streaks import fecth_streaks, create_streak, update_streak, delete_s
 from routes.stats import tasks_analytics, streaks_analytics
 from routes.agent import configure_agent, get_agent, update_agent
 from agent.loop import chat_loop
+from flask_sock import Sock
+
  
 app = Flask(__name__)
+
+sock = Sock(app=app) 
+
+
 
 
 def error_response(e):
@@ -247,18 +253,23 @@ def uagent():
         return error_response(e)
 
 
-@app.route("/agent/message", methods = ["POST"])                 # Message Agent
-def magent():
-    try:
-        id = authenticate_userid(request)
-        data = request.json  
+@sock.route("/agent/message", methods = ["POST"])                 # Message Agent
+def magent(ws):
+    while True:
+        data = ws.receive()
+
         
-        chat = data["chat_history"] 
-        if id is None:
-            return jsonify({"Error": "Unauthorized"}), 401
-        return chat_loop(str(chat))
-    except Exception as e:
-        return error_response(e)
+
+    # try:
+    #     id = authenticate_userid(request)
+    #     data = request.json  
+        
+    #     chat = data["chat_history"] 
+    #     if id is None:
+    #         return jsonify({"Error": "Unauthorized"}), 401
+    #     return chat_loop(str(chat))
+    # except Exception as e:
+    #     return error_response(e)
 
 
 @app.route("/")
