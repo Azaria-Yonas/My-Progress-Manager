@@ -25,7 +25,7 @@ def load_bootstrap(path):
             bootstrap[path.name] = f.read() 
 
     if Path.is_dir(path):
-        files = list(path.rglob("*.md"))
+        files = sorted(path.rglob("*.md"))
         for i in files:
             with open(i, "r") as f:
                 bootstrap[path.name] = f.read() 
@@ -35,15 +35,15 @@ def load_bootstrap(path):
     
 
 def load_tools (path):
-    "This function parses a json file that stores the tools "
+    """This function parses a json file that stores the tools
+     and converts it into a python dictionary """
     if not isinstance(path, Path): 
         path = Path(path)
-    """Converts a json file into a python dictionary"""
-    if Path.is_file(path) and Path.suffix == ".json":
+    if Path.is_file(path) and path.suffix == ".json":  
         with open(path, "r") as f:
             return json.load(f)
     else:
-        return "File path Error"
+        return "File Retrieving Error"
 
 
 
@@ -99,7 +99,7 @@ class Agent:
         if dump_all is True:
             return self.memory.dump()
 
-        return "Place Holder"
+        return 
     
 
 
