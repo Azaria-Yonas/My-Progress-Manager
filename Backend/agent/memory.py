@@ -57,6 +57,8 @@ class Memory:
         if include_additional_resources == True:
             dump["Additional Resources"] = self.additional_resources
 
+        return dump
+
 
 
 
