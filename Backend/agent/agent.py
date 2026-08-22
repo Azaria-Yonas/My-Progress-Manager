@@ -43,7 +43,7 @@ def load_tools (path):
         with open(path, "r") as f:
             return json.load(f)
     else:
-        return "File Retrieving Error"
+        return None
 
 
 
@@ -62,7 +62,7 @@ def load_user_data(uuid):
             return data[2]
         
 
-    return "Use Default Configuration"
+    return None
 
 
 
