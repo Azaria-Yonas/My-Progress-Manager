@@ -5,6 +5,7 @@ import json
 
 
 class Memory:
+    """The memory class is every piece of data that is avai"""
     def __init__(self, 
         bootstrap = {}, 
         history=  {}, 
@@ -31,6 +32,30 @@ class Memory:
 
         self.token_count = len(encoding.encode(text))
         return self.token_count
+
+    def dump(self, 
+        include_bootstrap = True, 
+        include_chat_history =True, 
+        include_tools = True,
+        include_user_data = True,
+        include_additional_resources = True 
+    ):
+        dump = {}
+
+        if include_bootstrap == True:
+            dump["Bootstrap"] = self.bootstrap
+
+        if include_chat_history == True: 
+            dump["Chat History"] = self.chat_history
+
+        if include_tools == True:
+
+            dump["Tools"] = self.tools
+        if include_user_data == True:
+            dump["User Data"] = self.user_data
+
+        if include_additional_resources == True:
+            dump["Additional Resources"] = self.additional_resources
 
 
 
