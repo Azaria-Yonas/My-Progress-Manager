@@ -25,12 +25,12 @@ def load_bootstrap(path):
             bootstrap[path.name] = f.read() 
 
     if Path.is_dir(path):
-        files = sorted(path.rglob("*.md"))
+        files = sorted(path.rglob("*.md", case_sensitive=False))
         for i in files:
             with open(i, "r") as f:
-                bootstrap[path.name] = f.read() 
+                bootstrap[i.name] = f.read() 
 
-        return bootstrap
+    return bootstrap
 
     
 
