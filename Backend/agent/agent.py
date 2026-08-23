@@ -5,6 +5,8 @@ import json
 from agent.memory import Memory
 from agent.models.openai_connector import OpenAIModel 
 
+from clients.psycopg_connect import psycopg_connect
+
 
 
 
@@ -50,19 +52,36 @@ def load_tools (path):
 
     
 def load_user_data(uuid):
-    response = get_agent(uuid) 
 
-    if isinstance(response, tuple):
-        response, status_code = response
+    try:
+        with psycopg_connect() as conn: 
+            with conn.cursor() as curr:
+                curr.execute( 
+                    "SELECT agent_name, user_data FROM public.agent WHERE user_id = %s", 
+                    (uuid,)
+                ) 
 
-        if status_code in [200, 206]: 
+                row = curr.fetchone()
+                if row is None:
+                    return {"User Data" : "No User Data"}
 
-            data = response.get_json()
+                return {"User Data" :  { 
+                    "Agent's User Given Name" :row[0],
+                    "User Prefrences" : row[1]
+                    }
+                }
 
-            return data[2]
-        
 
-    return None
+            
+    except:
+        return {"User Data" : "No User Data"}
+
+     
+    
+
+
+
+
 
 
 
