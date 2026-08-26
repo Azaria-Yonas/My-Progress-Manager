@@ -289,12 +289,9 @@ def home():
 
 
 
-
 def initialize_database(): 
     if not Path("my_database.db").is_file(): 
         connect("history.db")
-
-
 
     
 
