@@ -289,17 +289,19 @@ def home():
 
 
 
-def __init__():
-    if Path("my_database.db").is_file() is None:
+
+def initialize_database(): 
+    if not Path("my_database.db").is_file(): 
         connect("history.db")
+
+
 
     
 
 
 
-
 if __name__ == "__main__":
-    __init__()
+    initialize_database()
     app.run(debug=True)
 
 
