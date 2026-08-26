@@ -10,6 +10,10 @@ from routes.stats import tasks_analytics, streaks_analytics
 from routes.agent import configure_agent, get_agent, update_agent
 from error import error_message
 from flask_sock import Sock
+from pathlib import Path
+from sqlite3 import connect
+
+
 
  
 app = Flask(__name__)
@@ -277,10 +281,29 @@ def magent(ws):
     #     return error_message(error_response(e))
 
 
+
+
 @app.route("/")
 def home():
     return "Backend is running"
 
 
+
+def __init__():
+    if Path("my_database.db").is_file() is None:
+        connect("history.db")
+
+    
+
+
+
+
 if __name__ == "__main__":
+    __init__()
     app.run(debug=True)
+
+
+
+
+
+
