@@ -12,6 +12,9 @@ from error import error_message
 from flask_sock import Sock
 from pathlib import Path
 from sqlite3 import connect
+from agent.message_queue import MessageQueue
+from agent.loop import chat_loop
+import json
 
 
 
@@ -199,7 +202,11 @@ def cstreak(id):
         failed_intervals = data["failed_intervals"]
         calendar_data = data["calendar_data"]
         user_id = authenticate_userid(request)
-        return complete_streak(user_id, id, total_intervals, successful_intervals, failed_intervals, calendar_data)
+        return complete_streak(user_id, id, 
+                               total_intervals, 
+                               successful_intervals, 
+                               failed_intervals, 
+                               calendar_data)
     except Exception as e:
         return error_message(error_response(e))
 
@@ -262,10 +269,35 @@ def uagent():
         return error_message(error_response(e)) 
 
 
-@sock.route("/agent/message", methods = ["POST"])                 # Message Agent
+@sock.route("/agent/message")                                   # Message Agent
 def magent(ws):
+    try:
+        id = authenticate_userid(request)
+    except Exception as e: 
+        ws.send(error_message(e))
+        ws.close()
+        return
+
+
+    mq = MessageQueue(5) 
+    chat_loop(id,mq, ws)
+
+
+    
     while True:
+
         data = ws.receive()
+        data = json.loads(data)
+
+
+        
+        mq.add_message(data["message"])
+
+
+
+
+
+        
 
         
 
