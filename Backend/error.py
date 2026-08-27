@@ -1,5 +1,6 @@
-
 import logging
+from flask import jsonify
+
 
 logging.basicConfig(level=logging.INFO, filename="logging.log", filemode="w")
 
@@ -17,7 +18,7 @@ def error_message(error):
 
 
 
-    return {"Error": "Sorry for the inconvience. Please, Try again later"}
+    return jsonify({"Error": "Sorry for the inconvience. Please, Try again later"})
 
 
 
