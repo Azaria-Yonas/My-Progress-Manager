@@ -10,10 +10,9 @@ from routes.stats import tasks_analytics, streaks_analytics
 from routes.agent import configure_agent, get_agent, update_agent
 from error import error_message
 from flask_sock import Sock
-from pathlib import Path
-from sqlite3 import connect
 from agent.message_queue import MessageQueue
 from agent.loop import chat_loop
+from agent.history import initialize_db, create_database
 import json
 
 
@@ -321,16 +320,12 @@ def home():
 
 
 
-def initialize_database(): 
-    if not Path("my_database.db").is_file(): 
-        connect("history.db")
-
-    
-
-
 
 if __name__ == "__main__":
-    initialize_database()
+    create_database()
+    initialize_db()
+
+
     app.run(debug=True)
 
 
