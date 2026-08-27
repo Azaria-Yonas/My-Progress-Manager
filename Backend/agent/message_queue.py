@@ -2,7 +2,7 @@ from queue import Queue
 from datetime import datetime
 
 
-TIME_OUT = 200.00
+TIME_OUT = 360.00
 
 class MessageQueue(Queue):
     def __init__ (self, max_size = 0):
@@ -25,8 +25,11 @@ class MessageQueue(Queue):
 
         return items
 
-    def get_response(self):
-        return super().get(timeout=TIME_OUT)
+    def listen(self, timeout = TIME_OUT):
+        return super().get(timeout=timeout) 
+
+
+
     
 
 
