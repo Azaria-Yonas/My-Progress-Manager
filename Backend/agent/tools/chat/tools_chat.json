@@ -22,13 +22,8 @@
         "description": "Handoff task to Orchestrator",
         "parameters": {
             "type": "object", 
-            "properties": { 
-                "chat": { 
-                    "type": "string",
-                    "description": "Current chat between the agent and the user" 
-                }
-            },
-            "required": ["chat"],
+            "properties": {},
+            "required": [],
             "additionalProperties": false
         },
         "strict": true
@@ -58,7 +53,7 @@
                 }, 
                 "color": {
                     "type": "string",
-                    "description": "The color of the tasks component given as a hex code" 
+                    "description": "The color of the tasks component given as a hex code. If unspecified, you could either ask or randomly choose from: '#7EC8EB','#2856ffff' '#0037ffff', '#4c34c5f', '#6536bcff', '#ad5fe2ff'," 
                 },
                 "due_date": { 
                     "type": "string",

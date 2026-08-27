@@ -504,8 +504,6 @@ def reorder_tasks(user_id, tasks):
 
 
 
-
-
 def ask_user(question: str, wb, queue):
 
     wb.send(question)
@@ -515,6 +513,9 @@ def ask_user(question: str, wb, queue):
     return user_response
 
 
+
+def wakeup_orchestrator():
+    return "Orchestrator Not Available "
 
 
 
@@ -539,7 +540,8 @@ def call_function(function_name: str, *args):
         "complete_task" : complete_task,
         "undo_complete_task" : undo_complete_task,
         "reorder_tasks" : reorder_tasks,
-        "ask_user" : ask_user 
+        "ask_user" : ask_user ,
+        "wakeup_orchestrator" : wakeup_orchestrator
 
 
     }
