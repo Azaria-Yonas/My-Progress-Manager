@@ -506,6 +506,20 @@ def reorder_tasks(user_id, tasks):
 
 
 
+def ask_user(question: str, wb, queue):
+
+    wb.send(question)
+
+    user_response = queue.listen()
+
+    return user_response
+
+
+
+
+
+
+
 def call_function(function_name: str, *args):
     functions = {
         "get_tasks_analytics" : tasks_analytics,
@@ -525,17 +539,16 @@ def call_function(function_name: str, *args):
         "complete_task" : complete_task,
         "undo_complete_task" : undo_complete_task,
         "reorder_tasks" : reorder_tasks,
+        "ask_user" : ask_user 
+
+
     }
 
 
     function = functions[function_name]
 
 
-    return print(function_name,*args) 
-    # return function(*args) 
-
-
-
+    return function(*args) 
 
 
 
