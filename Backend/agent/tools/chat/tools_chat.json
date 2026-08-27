@@ -1,6 +1,23 @@
 [
     {
         "type": "function",
+        "name": "ask_user",
+        "description": "Ask the user a question.",
+        "parameters": {
+            "type": "object", 
+            "properties": { 
+                "question": { 
+                    "type": "string",
+                    "description": "The question to be asked to the user." 
+                }
+            },
+            "required": ["question"],
+            "additionalProperties": false
+        },
+        "strict": true
+    },
+    {
+        "type": "function",
         "name": "wakeup_orchestrator",
         "description": "Handoff task to Orchestrator",
         "parameters": {
