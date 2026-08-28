@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -17,6 +17,7 @@ import {
   ListRenderItemInfo,
   PanResponder,
   PanResponderGestureState,
+  useWindowDimensions,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -30,13 +31,10 @@ import {
   createAgentChatStyles,
   clampFabValue,
   snapFabPosition,
+  computeAgentFabBounds,
   AGENT_PANEL_HEIGHT,
   AGENT_FAB_SHIFT,
   AGENT_FAB_REST_TOP,
-  AGENT_FAB_MAX_X,
-  AGENT_FAB_MIN_Y,
-  AGENT_FAB_MAX_Y,
-  AGENT_FAB_DEFAULT_POSITION,
 } from "../styles/AgentChatStyles";
 import { scale } from "../utils/responsive";
 
@@ -61,6 +59,14 @@ export default function AgentChat({ scrollY }: AgentChatProps) {
   const { agentName, avatarSource, fabPosition, setFabPosition } = useAgent();
   const styles = createAgentChatStyles(theme);
 
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  const fabBounds = useMemo(
+    () => computeAgentFabBounds(windowWidth, windowHeight),
+    [windowWidth, windowHeight]
+  );
+  const fabBoundsRef = useRef(fabBounds);
+  fabBoundsRef.current = fabBounds;
+
   const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<AgentMessage[]>([]);
@@ -73,10 +79,12 @@ export default function AgentChat({ scrollY }: AgentChatProps) {
   const sessionRef = useRef("");
   const sendingRef = useRef(false);
 
+  const clearTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const staticScroll = useRef(new Animated.Value(0)).current;
   const scrollSource = scrollY ?? staticScroll;
 
-  const positionRef = useRef(fabPosition ?? AGENT_FAB_DEFAULT_POSITION);
+  const positionRef = useRef(fabPosition ?? fabBounds.defaultPosition);
   const fabPos = useRef(new Animated.ValueXY(positionRef.current)).current;
   const dragScale = useRef(new Animated.Value(1)).current;
   const draggingRef = useRef(false);
@@ -100,7 +108,7 @@ export default function AgentChat({ scrollY }: AgentChatProps) {
       if (draggingRef.current) return;
       const progress = clampFabValue(value, 0, 70) / 70;
       const next = {
-        x: AGENT_FAB_DEFAULT_POSITION.x,
+        x: fabBoundsRef.current.defaultPosition.x,
         y: AGENT_FAB_REST_TOP - progress * AGENT_FAB_SHIFT,
       };
       positionRef.current = next;
@@ -110,11 +118,31 @@ export default function AgentChat({ scrollY }: AgentChatProps) {
     return () => scrollSource.removeListener(id);
   }, [fabPosition, scrollSource, fabPos]);
 
+  useEffect(() => {
+    if (draggingRef.current) return;
+
+    const target = fabPosition
+      ? snapFabPosition(fabPosition.x, fabPosition.y, fabBounds)
+      : fabBounds.defaultPosition;
+
+    if (target.x === positionRef.current.x && target.y === positionRef.current.y) {
+      return;
+    }
+
+    positionRef.current = target;
+    fabPos.setValue(target);
+    if (fabPosition && (target.x !== fabPosition.x || target.y !== fabPosition.y)) {
+      setFabPosition(target);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fabBounds]);
+
   const finishDrag = (gesture: PanResponderGestureState) => {
     draggingRef.current = false;
     const target = snapFabPosition(
       positionRef.current.x + gesture.dx,
-      positionRef.current.y + gesture.dy
+      positionRef.current.y + gesture.dy,
+      fabBoundsRef.current
     );
     positionRef.current = target;
     setFabPosition(target);
@@ -151,13 +179,10 @@ export default function AgentChat({ scrollY }: AgentChatProps) {
         }).start();
       },
       onPanResponderMove: (_evt, gesture) => {
+        const bounds = fabBoundsRef.current;
         fabPos.setValue({
-          x: clampFabValue(positionRef.current.x + gesture.dx, 0, AGENT_FAB_MAX_X),
-          y: clampFabValue(
-            positionRef.current.y + gesture.dy,
-            AGENT_FAB_MIN_Y,
-            AGENT_FAB_MAX_Y
-          ),
+          x: clampFabValue(positionRef.current.x + gesture.dx, 0, bounds.maxX),
+          y: clampFabValue(positionRef.current.y + gesture.dy, bounds.minY, bounds.maxY),
         });
       },
       onPanResponderRelease: (_evt, gesture) => finishDrag(gesture),
@@ -190,11 +215,16 @@ export default function AgentChat({ scrollY }: AgentChatProps) {
   }, [open, anim]);
 
   const openChat = () => {
-    setMessages([]);
-    setInput("");
-    setSending(false);
-    sendingRef.current = false;
-    sessionRef.current = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    if (clearTimerRef.current) {
+      clearTimeout(clearTimerRef.current);
+      clearTimerRef.current = null;
+    } else {
+      setMessages([]);
+      setInput("");
+      setSending(false);
+      sendingRef.current = false;
+      sessionRef.current = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    }
     anim.setValue(0);
     setMounted(true);
     setOpen(true);
@@ -211,12 +241,23 @@ export default function AgentChat({ scrollY }: AgentChatProps) {
       if (!finished) return;
       setOpen(false);
       setMounted(false);
-      setMessages([]);
-      setInput("");
-      setSending(false);
-      sendingRef.current = false;
+
+      if (clearTimerRef.current) clearTimeout(clearTimerRef.current);
+      clearTimerRef.current = setTimeout(() => {
+        setMessages([]);
+        setInput("");
+        setSending(false);
+        sendingRef.current = false;
+        clearTimerRef.current = null;
+      }, 20000);
     });
   };
+
+  useEffect(() => {
+    return () => {
+      if (clearTimerRef.current) clearTimeout(clearTimerRef.current);
+    };
+  }, []);
 
   const scrollToEnd = () => {
     requestAnimationFrame(() => listRef.current?.scrollToEnd({ animated: true }));
@@ -233,15 +274,17 @@ export default function AgentChat({ scrollY }: AgentChatProps) {
       text: trimmed,
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    const nextMessages = [...messages, userMessage];
+    setMessages(nextMessages);
     setInput("");
     setSending(true);
     scrollToEnd();
 
     try {
-      const reply = await AgentService.sendMessage(trimmed, {
-        sessionId: sessionRef.current,
-      });
+      const reply = await AgentService.sendMessage(
+        nextMessages.map(({ role, text }) => ({ role, text })),
+        { sessionId: sessionRef.current }
+      );
       setMessages((prev) => [
         ...prev,
         {

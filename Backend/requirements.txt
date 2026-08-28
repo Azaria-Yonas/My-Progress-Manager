@@ -4,4 +4,7 @@ supabase==2.28.0
 python-dotenv==1.0.1
 psycopg==3.3.3
 openai==2.38.0
-tavily-python== 0.7.26
+tavily-python==0.7.26
+flask-sock==0.7.0
+SQLAlchemy==2.0.52
+tiktoken==0.13.0

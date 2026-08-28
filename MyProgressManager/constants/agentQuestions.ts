@@ -42,7 +42,7 @@ export function buildAgentQuestions(firstName?: string | null): AgentQuestion[] 
     },
     {
       id: "help_with",
-      prompt: "You are here because you are focused, dedicated, and want to get things done. But, What exactly would you like my help with?",
+      prompt: "Some are here because they want to be discuplined, others want to get things done. What exactly would you like my help with?",
       helper: "Pick what matters most right now.",
       placeholder: "You can spill your ideas right here!",
       suggestions: [

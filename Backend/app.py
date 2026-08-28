@@ -8,9 +8,21 @@ from routes.tasks import fecth_tasks, create_task, update_task, delete_task, com
 from routes.streaks import fecth_streaks, create_streak, update_streak, delete_streak, tap_streak, expire_streak, pause_streak, complete_streak
 from routes.stats import tasks_analytics, streaks_analytics
 from routes.agent import configure_agent, get_agent, update_agent
-# from agent.agent import message_agent
+from error import error_message
+from flask_sock import Sock
+from agent.message_queue import MessageQueue
+from agent.loop import chat_loop
+from agent.history import initialize_db, create_database
+import json
+
+
+
  
 app = Flask(__name__)
+
+sock = Sock(app=app) 
+
+
 
 
 def error_response(e):
@@ -34,7 +46,8 @@ def gme():
         id = authenticate_userid(request)
         return getme(id)
     except Exception as e:
-        return error_response(e)
+        return error_message(error_response(e)) 
+    
 
 @app.route("/logout", methods = ["POST"])                       # Sign Out
 def lout():
@@ -45,7 +58,7 @@ def lout():
         token = auth_header.split(" ")[1]
         return signout(token)
     except Exception as e:
-        return error_response(e)
+        return error_message(error_response(e)) 
 
 
 @app.route("/tasks", methods = ["GET"])                         # Fetch Tasks
@@ -54,7 +67,8 @@ def ftasks():
         id = authenticate_userid(request)
         return fecth_tasks(id)
     except Exception as e:
-        return error_response(e)
+        return error_message(error_response(e))
+    
     
 @app.route("/tasks", methods = ["POST"])                        # Create Tasks
 def ctasks():
@@ -66,7 +80,7 @@ def ctasks():
         id = authenticate_userid(request)
         return create_task(id, title, color, due_date)
     except Exception as e:
-        return error_response(e)
+        return error_message(error_response(e)) 
     
     
 @app.route("/tasks/<id>", methods = ["PATCH"])                  # Update Tasks
@@ -76,7 +90,7 @@ def utask(id):
         user_id = authenticate_userid(request)
         return update_task(user_id, id, data)
     except Exception as e:
-        return error_response(e)
+        return error_message(error_response(e))
 
 
 @app.route("/tasks/<id>", methods = ["DELETE"])                 # Delete Task
@@ -85,7 +99,7 @@ def dtask(id):
         user_id = authenticate_userid(request)
         return delete_task(user_id, id)
     except Exception as e:
-        return error_response(e)
+        return error_message(error_response(e))
 
 @app.route("/tasks/<id>/complete", methods = ["POST"])          # Complete Task 
 def ctask(id):
@@ -93,14 +107,15 @@ def ctask(id):
         user_id = authenticate_userid(request)
         return complete_task(user_id, id)
     except Exception as e:
-        return error_response(e)
+        return error_message(error_response(e))
+    
 @app.route("/tasks/<id>/undo-complete", methods = ["POST"])     # Undo-Complete Task 
 def uctask(id):
     try:
         user_id = authenticate_userid(request)
         return undo_complete_task(user_id, id)
     except Exception as e:
-        return error_response(e)
+        return error_message(error_response(e)) 
 
     
 @app.route("/tasks/reorder", methods = ["PATCH"])               # Reorder Tasks
@@ -111,7 +126,7 @@ def rtask():
         user_id = authenticate_userid(request)
         return reorder_tasks(user_id, tasks)
     except Exception as e:
-        return error_response(e)
+        return error_message(error_response(e)) 
     
 
 @app.route("/streaks", methods = ["GET"])                       # Fetch Streaks
@@ -120,7 +135,7 @@ def fstreaks():
         id = authenticate_userid(request)
         return fecth_streaks(id)
     except Exception as e:
-        return error_response(e)
+        return error_message(error_response(e)) 
     
 @app.route("/streaks", methods = ["POST"])                      # Create Streaks
 def cstreaks():
@@ -131,7 +146,7 @@ def cstreaks():
         id = authenticate_userid(request)
         return create_streak(id, title, duration_seconds)
     except Exception as e:
-        return error_response(e)
+        return error_message(error_response(e)) 
 
 @app.route("/streaks/<id>", methods = ["PATCH"])                # Update Streaks
 def ustreak(id):
@@ -140,7 +155,7 @@ def ustreak(id):
         user_id = authenticate_userid(request)
         return update_streak(user_id, id, data)
     except Exception as e:
-        return error_response(e)
+        return error_message(error_response(e)) 
 
 @app.route("/streaks/<id>", methods = ["DELETE"])               # Delete Streaks
 def dstreak(id):
@@ -148,7 +163,7 @@ def dstreak(id):
         user_id = authenticate_userid(request)
         return delete_streak(user_id, id)
     except Exception as e:
-        return error_response(e)
+        return error_message(error_response(e))
 
 @app.route("/streaks/<id>/tap", methods = ["POST"])             # Increment Streaks
 def tstreak(id):
@@ -156,7 +171,7 @@ def tstreak(id):
         user_id = authenticate_userid(request)
         return tap_streak(user_id, id)
     except Exception as e:
-        return error_response(e)
+        return error_message(error_response(e)) 
 
 @app.route("/streaks/<id>/expire", methods = ["POST"])          # Expired Streaks
 def estreak(id):
@@ -164,7 +179,7 @@ def estreak(id):
         user_id = authenticate_userid(request)
         return expire_streak(user_id, id)
     except Exception as e:
-        return error_response(e)
+        return error_message(error_response(e))
 
 @app.route("/streaks/<id>/pause", methods = ["POST"])           # Pause Streak
 def pstreak(id):
@@ -174,7 +189,8 @@ def pstreak(id):
         user_id = authenticate_userid(request)
         return pause_streak(user_id, id, paused)
     except Exception as e:
-        return error_response(e)
+        return error_message(error_response(e))   
+    
 
 @app.route("/streaks/<id>/complete", methods = ["POST"])
 def cstreak(id):
@@ -185,9 +201,13 @@ def cstreak(id):
         failed_intervals = data["failed_intervals"]
         calendar_data = data["calendar_data"]
         user_id = authenticate_userid(request)
-        return complete_streak(user_id, id, total_intervals, successful_intervals, failed_intervals, calendar_data)
+        return complete_streak(user_id, id, 
+                               total_intervals, 
+                               successful_intervals, 
+                               failed_intervals, 
+                               calendar_data)
     except Exception as e:
-        return error_response(e)
+        return error_message(error_response(e))
 
 @app.route("/stats/tasks", methods = ["GET"])                   # Tasks Analytics
 def gctasks():
@@ -195,7 +215,7 @@ def gctasks():
         id = authenticate_userid(request)
         return tasks_analytics(id)
     except Exception as e:
-        return error_response(e)
+        return error_message(error_response(e)) 
     
 
 @app.route("/stats/streaks", methods = ["GET"])                 # Streaks Analytics
@@ -204,7 +224,7 @@ def gcstreaks():
         id = authenticate_userid(request)
         return streaks_analytics(id)
     except Exception as e:
-        return error_response(e)
+        return error_message(error_response(e))
     
     
 @app.route("/agent", methods = ["GET"])                          # Get Agent
@@ -215,7 +235,8 @@ def gagent():
             return jsonify({"Error": "Unauthorized"}), 401
         return get_agent(id)
     except Exception as e:
-        return error_response(e)
+        return error_message(error_response(e))
+    
 
 @app.route("/agent", methods = ["POST"])                         # Configure Agent
 def cagent():
@@ -229,7 +250,7 @@ def cagent():
             return jsonify({"Error": "Unauthorized"}), 401
         return configure_agent(id, name, picture, text)
     except Exception as e:
-        return error_response(e)
+        return error_message(error_response(e)) 
 
 
 @app.route("/agent", methods = ["PUT"])                         # Update Agent
@@ -244,18 +265,54 @@ def uagent():
             return jsonify({"Error": "Unauthorized"}), 401
         return update_agent(id, name, picture, text)
     except Exception as e:
-        return error_response(e)
+        return error_message(error_response(e)) 
 
 
-@app.route("/agent/message", methods = ["POST"])                 # Message Agent
-def magent():
+@sock.route("/agent/message")                                   # Message Agent
+def magent(ws):
     try:
         id = authenticate_userid(request)
-        if id is None:
-            return jsonify({"Error": "Unauthorized"}), 401
-        return "NOT IMPLEMENTED YET"
-    except Exception as e:
-        return error_response(e)
+    except Exception as e: 
+        ws.send(error_message(e))
+        ws.close()
+        return
+
+
+    mq = MessageQueue(5) 
+
+
+    
+    while True:
+
+        data = ws.receive()
+        data = json.loads(data)
+
+
+        
+        mq.add_message(data["message"])
+
+        chat_loop(id, mq, ws)
+
+
+
+
+
+        
+
+        
+
+    # try:
+    #     id = authenticate_userid(request)
+    #     data = request.json  
+        
+    #     chat = data["chat_history"] 
+    #     if id is None:
+    #         return jsonify({"Error": "Unauthorized"}), 401
+    #     return chat_loop(str(chat))
+    # except Exception as e:
+    #     return error_message(error_response(e))
+
+
 
 
 @app.route("/")
@@ -263,5 +320,17 @@ def home():
     return "Backend is running"
 
 
+
+
 if __name__ == "__main__":
+    create_database()
+    initialize_db()
+
+
     app.run(debug=True)
+
+
+
+
+
+

@@ -32,15 +32,57 @@ export const AGENT_FAB_DEFAULT_POSITION: AgentFabPosition = {
   y: AGENT_FAB_REST_TOP,
 };
 
+export interface AgentFabBounds {
+  leftX: number;
+  rightX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
+  defaultPosition: AgentFabPosition;
+}
+
+// SCREEN_WIDTH/SCREEN_HEIGHT above are captured once at module load and never
+// update on rotation, so the fab's right-edge/bottom bounds go stale after a
+// device rotates (e.g. iPad landscape). Compute bounds from the current
+// window size instead of relying on those stale constants.
+export function computeAgentFabBounds(width: number, height: number): AgentFabBounds {
+  const leftX = AGENT_FAB_MARGIN;
+  const rightX = width - AGENT_FAB_MARGIN - AGENT_FAB_SIZE;
+  const maxX = width - AGENT_FAB_SIZE;
+  const minY = AGENT_FAB_MIN_Y;
+  const maxY = Math.max(minY, height - BOTTOM_BAR_CLEARANCE - AGENT_FAB_SIZE);
+
+  return {
+    leftX,
+    rightX,
+    maxX,
+    minY,
+    maxY,
+    defaultPosition: { x: rightX, y: AGENT_FAB_REST_TOP },
+  };
+}
+
 export function clampFabValue(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
-export function snapFabPosition(x: number, y: number): AgentFabPosition {
+export function snapFabPosition(
+  x: number,
+  y: number,
+  bounds: AgentFabBounds = {
+    leftX: AGENT_FAB_LEFT_X,
+    rightX: AGENT_FAB_RIGHT_X,
+    maxX: AGENT_FAB_MAX_X,
+    minY: AGENT_FAB_MIN_Y,
+    maxY: AGENT_FAB_MAX_Y,
+    defaultPosition: AGENT_FAB_DEFAULT_POSITION,
+  }
+): AgentFabPosition {
   const center = x + AGENT_FAB_SIZE / 2;
+  const screenWidth = bounds.maxX + AGENT_FAB_SIZE;
   return {
-    x: center < SCREEN_WIDTH / 2 ? AGENT_FAB_LEFT_X : AGENT_FAB_RIGHT_X,
-    y: clampFabValue(y, AGENT_FAB_MIN_Y, AGENT_FAB_MAX_Y),
+    x: center < screenWidth / 2 ? bounds.leftX : bounds.rightX,
+    y: clampFabValue(y, bounds.minY, bounds.maxY),
   };
 }
 

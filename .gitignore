@@ -83,3 +83,6 @@ global.d.ts
 
 *expo-env.d.ts
 
+Backend/agent/agent_bootstrap/chat/TEST.md
+
+*.log
