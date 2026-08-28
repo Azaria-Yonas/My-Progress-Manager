@@ -279,7 +279,6 @@ def magent(ws):
 
 
     mq = MessageQueue(5) 
-    chat_loop(id,mq, ws)
 
 
     
@@ -291,6 +290,8 @@ def magent(ws):
 
         
         mq.add_message(data["message"])
+
+        chat_loop(id, mq, ws)
 
 
 

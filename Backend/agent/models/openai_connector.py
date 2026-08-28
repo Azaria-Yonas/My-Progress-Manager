@@ -49,7 +49,7 @@ class OpenAIModel:
             model=self.model,
             instructions=json.dumps(instructions),
             tools=memory.get("Tools"),
-            input= json.dumps(input)
+            input= json.dumps(input, default=str)
 
         )
 

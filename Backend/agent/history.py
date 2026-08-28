@@ -7,11 +7,34 @@ from sqlalchemy.orm import Session
 
 from uuid import uuid4, UUID
 from datetime import datetime
+from pathlib import Path
+from sqlite3 import connect
 
-engine =create_engine("sqlite:///history.db") 
+
+ENGINE =create_engine("sqlite:///agent/history.db") 
  
+BASE = declarative_base()
 
-class ChatHistory(declarative_base()):
+
+
+def create_database(): 
+    if not Path("agent/my_database.db").is_file(): 
+        connect("history.db")
+
+
+def initialize_db():
+    BASE.metadata.create_all(ENGINE)
+
+
+
+
+
+
+
+
+
+
+class ChatHistory(BASE):
     """This function records the chat history between 
     the user and the agent"""
 
@@ -29,7 +52,7 @@ class ChatHistory(declarative_base()):
 
     @classmethod
     def append(cls, user, message):
-        with Session(engine) as session:
+        with Session(ENGINE) as session:
             chat = cls(message= message, user = user)
 
             session.add(chat)
@@ -38,7 +61,7 @@ class ChatHistory(declarative_base()):
 
     @classmethod
     def get_history(cls, active =False):
-        with Session(engine) as session:
+        with Session(ENGINE) as session:
 
             if active == True:
                 stmt = Select(cls).where(cls.status == 'active')
@@ -46,21 +69,6 @@ class ChatHistory(declarative_base()):
                 
 
         
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -72,7 +80,7 @@ class ChatHistory(declarative_base()):
 
 
 
-class AgentHistory(declarative_base()):
+class AgentHistory(BASE):
     """This function records all the outputs from all the 
     requests that are going to the agent"""
 
@@ -81,7 +89,13 @@ class AgentHistory(declarative_base()):
     id : Mapped[UUID] =  mapped_column(Uuid, primary_key=True, default=uuid4)
     date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now(), index=True)
     output: Mapped[dict] = mapped_column(JSON)
-    message_id : Mapped[UUID] = mapped_column(Uuid, ForeignKey = ForeignKey("chat_history.message_id"))
+    message_id : Mapped[UUID] = mapped_column(Uuid, ForeignKey("chat_history.message_id"))
+
+
+
+
+
+
 
 
 

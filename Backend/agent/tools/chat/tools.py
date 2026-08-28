@@ -6,7 +6,7 @@ import json
 
 
 
-def tasks_analytics(id):
+def tasks_analytics(user_id):
     results = []
     try:
         with psycopg_connect() as conn:
@@ -15,7 +15,7 @@ def tasks_analytics(id):
                     SELECT id, title, color, due_date, completed_at FROM public.completed_tasks
                     WHERE user_id = %s
                 """,
-                (id,))
+                (user_id,))
 
                 
                 rows = curr.fetchall()
@@ -34,7 +34,7 @@ def tasks_analytics(id):
         
 
 
-def streaks_analytics(id):
+def streaks_analytics(user_id):
     results = []
     try:
         with psycopg_connect() as conn:
@@ -45,7 +45,7 @@ def streaks_analytics(id):
                     FROM public.completed_streaks
                     WHERE user_id = %s
                 """,
-                (id,))
+                (user_id,))
 
                 
                 rows = curr.fetchall()
@@ -521,7 +521,7 @@ def wakeup_orchestrator():
 
 
 
-def call_function(function_name: str, *args):
+def call_function(function_name: str, uuid, **kargs):
     functions = {
         "get_tasks_analytics" : tasks_analytics,
         "get_streaks_analytics" : streaks_analytics,
@@ -542,15 +542,19 @@ def call_function(function_name: str, *args):
         "reorder_tasks" : reorder_tasks,
         "ask_user" : ask_user ,
         "wakeup_orchestrator" : wakeup_orchestrator
-
-
     }
 
 
     function = functions[function_name]
 
+    variables = function.__code__.co_varnames
 
-    return function(*args) 
+    if "user_id" in variables:
+        return function (uuid, **kargs)
+        
+
+
+    return function(**kargs) 
 
 
 
