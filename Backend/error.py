@@ -15,10 +15,10 @@ def error_message(error):
 
 
 
+    status = error[1] if isinstance(error, tuple) and len(error) == 2 else 500
 
 
-
-    return jsonify({"Error": "Sorry for the inconvience. Please, Try again later"})
+    return jsonify({"Error": "Sorry for the inconvience. Please, Try again later"}), status
 
 
 
