@@ -1,4 +1,6 @@
-import { api } from "./api";
+import { api, ApiError } from "./api";
+import { API_BASE_URL } from "../constants/config";
+import { getToken } from "./tokenStorage";
 
 export type AgentRole = "user" | "assistant";
 
@@ -125,16 +127,59 @@ export const AgentService = {
     chatHistory: ChatHistoryMessage[],
     options: SendMessageOptions = {}
   ): Promise<string> {
-    const payload = {
-      chat_history: chatHistory,
-      session_id: options.sessionId,
-    };
+    const latest = [...chatHistory].reverse().find((entry) => entry.role === "user");
+    const token = await getToken();
+    const url = `${API_BASE_URL.replace(/^http/, "ws")}/agent/message`;
 
-    const data = await api.post<unknown>("/agent/message", payload, {
-      signal: options.signal,
+    return new Promise<string>((resolve, reject) => {
+      const socket: WebSocket = new (WebSocket as any)(
+        url,
+        undefined,
+        token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
+      );
+
+      let settled = false;
+      let timer: ReturnType<typeof setTimeout>;
+
+      const finish = (action: () => void) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        try {
+          socket.close();
+        } catch {}
+        action();
+      };
+
+      const fail = (message: string) =>
+        finish(() => reject(new ApiError(message, 0, null)));
+
+      timer = setTimeout(() => fail("Request timed out"), 60000);
+
+      socket.onopen = () => {
+        socket.send(
+          JSON.stringify({
+            message: latest?.text ?? "",
+            session_id: options.sessionId,
+          })
+        );
+      };
+
+      socket.onmessage = (event) => {
+        const raw = typeof event.data === "string" ? event.data : "";
+        let parsed: unknown = raw;
+        try {
+          parsed = JSON.parse(raw);
+        } catch {}
+        finish(() => resolve(normalizeReply(parsed)));
+      };
+
+      socket.onerror = () => fail("Network request failed");
+
+      socket.onclose = () => fail("Connection closed before a reply arrived");
+
+      options.signal?.addEventListener("abort", () => fail("Request cancelled"));
     });
-
-    return normalizeReply(data);
   },
 
   async getConfig(options: { signal?: AbortSignal } = {}): Promise<AgentConfig> {
