@@ -13,6 +13,8 @@ from flask_sock import Sock
 from agent.message_queue import MessageQueue
 from agent.loop import chat_loop
 from agent.history import initialize_db, create_database
+from clients.supabase_client import user_channel
+import asyncio
 import json
 
 
@@ -281,7 +283,6 @@ def magent(ws):
     mq = MessageQueue(5) 
 
 
-    
     while True:
 
         data = ws.receive()
@@ -297,21 +298,32 @@ def magent(ws):
 
 
 
-        
 
-        
 
-    # try:
-    #     id = authenticate_userid(request)
-    #     data = request.json  
-        
-    #     chat = data["chat_history"] 
-    #     if id is None:
-    #         return jsonify({"Error": "Unauthorized"}), 401
-    #     return chat_loop(str(chat))
-    # except Exception as e:
-    #     return error_message(error_response(e))
 
+@sock.route("/notify")                                          # Notifications
+def notify(ws):
+    try:
+        id = authenticate_userid(request)
+    except Exception as e:
+        ws.send(json.dumps({"Error": str(e)}))
+        ws.close()
+        return
+
+    def on_change(payload): 
+        ws.send(json.dumps({"table": payload["data"]["table"]}))
+
+
+    async def listen():
+        changes = await user_channel(id, on_change)
+        while ws.connected:
+            await asyncio.sleep(1)
+        await changes.unsubscribe()
+
+    asyncio.run(listen())
+
+    
+    
 
 
 
