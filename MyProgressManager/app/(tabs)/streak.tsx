@@ -23,6 +23,7 @@ import {
 } from "../../utils/streakHistory";
 
 import { ApiStreak, StreaksService } from "../../services/streaks";
+import { useNotify } from "../../hooks/use-notify";
 import { scale, verticalScale } from "../../utils/responsive";
 
 const StreaksScreen: React.FC = () => {
@@ -47,6 +48,8 @@ const StreaksScreen: React.FC = () => {
   useEffect(() => {
     if (!initializing && user) loadStreaks();
   }, [user, initializing]);
+
+  useNotify(["streaks", "completed_streaks"], loadStreaks);
 
 
   async function loadHistoryFor(id: string): Promise<StreakHistoryState> {

@@ -12,6 +12,7 @@ import { useLoading } from "../../context/LoadingContext";
 import { useAuth } from "../../context/AuthProvider";
 import { useRouter } from "expo-router";
 import { TasksService } from "../../services/tasks";
+import { useNotify } from "../../hooks/use-notify";
 import BottomBar from "../../components/BottomBar";
 import AgentChat from "../../components/AgentChat";
 import WeekSelector from "../../components/WeekSelector";
@@ -57,9 +58,9 @@ export default function Home() {
   }, [user, initializing]);
 
 
-  const fetchTasks = async () => {
+  const fetchTasks = async (silent = false) => {
     if (!user) return;
-    setLoading(true);
+    if (!silent) setLoading(true);
 
     try {
       const data = await TasksService.list();
@@ -67,13 +68,15 @@ export default function Home() {
     } catch (err) {
       console.error("Error fetching tasks:", err);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
   useEffect(() => {
     if (user) fetchTasks();
   }, [user]);
+
+  useNotify(["tasks", "completed_tasks"], () => fetchTasks(true));
 
 
   const tasksByDay = useMemo(() => {

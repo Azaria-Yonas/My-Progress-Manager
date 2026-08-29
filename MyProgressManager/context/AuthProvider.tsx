@@ -19,6 +19,7 @@ import {
   setToken,
 } from "../services/tokenStorage";
 import { ApiError } from "../services/api";
+import { NotifyService } from "../services/notify";
 
 type AuthContextType = {
   user: AuthUser | null;
@@ -79,6 +80,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     await setToken(res.access_token);
     setTokenState(res.access_token);
     setUser(res.user);
+    NotifyService.reset();
     return res.user;
   }, []);
 
@@ -87,6 +89,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     await setToken(res.access_token);
     setTokenState(res.access_token);
     setUser(res.user);
+    NotifyService.reset();
     return res.user;
   }, []);
 
@@ -95,6 +98,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     await clearToken();
     setTokenState(null);
     setUser(null);
+    NotifyService.reset();
   }, []);
 
   return (
