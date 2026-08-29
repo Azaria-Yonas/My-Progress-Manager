@@ -1,27 +1,4 @@
-# My Progress Manager
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# Ledger
 
 
 <p align="center">
@@ -47,6 +24,40 @@
 <p align="center">
   <img src="MyProgressManager/assets/images/suitcase.png" width="22%" alt="My Progress Manager logo">
 </p>
+
+
+
+Ledger (previously named MyProgressManager) is a app that manages 
+
+
+The app itself primarily exists as a wrapper for a agentic system that I created. 
+
+I created this agent with no orchestration frameworks and no SDKs and defined all functionalities myself
+
+
+This agentic system is multi - teared and the agent is allowed to control itself in that it can select a and choose
+
+
+This system that I created optimized token consumption.
+
+I implement things such as empheral storage along with long terms storage and 
+
+
+
+
+
+
+
+
+The most important part of this project is the agent and I have left way more resources at [here](Backend/agent/README.md)
+
+
+
+
+
+
+
+
 
 ## Demo
 
@@ -416,40 +427,23 @@ My-Progress-Manager
 |  |  |
 |  |  |
 
-## Contributing
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-See [CONTRIBUTING.md](CONTRIBUTING.md), the [Code of Conduct](CODE_OF_CONDUCT.md),
-and [SECURITY.md](SECURITY.md).
 
 ## Acknowledgements
 
 This project began as a clone of [Task-Manager-ReactNative](https://github.com/hoangsonww/Task-Manager-ReactNative)
 by [Son Nguyen](https://github.com/hoangsonww). They laid out the initial React Native and Expo task-manager foundation. Shout out to them for putting it out there. My project has since changed a lot.
 I added a separate Flask backend, and the Supabase Postgres schema was built from scratch for this project, as was the Agent. Not only that, but the frontend was rewritten, with more screens and lots of new features. However, a lot of the elements remain unchanged. UI components such as the draggable flat screen, task items, and task add modal are about the same as in the original repo, only adapted to my project. Once again, thanks to the original creators.
+
+
+
+## Contributing
+
+
+See [CONTRIBUTING.md](CONTRIBUTING.md), the [Code of Conduct](CODE_OF_CONDUCT.md),
+and [SECURITY.md](SECURITY.md).
+
+
 
 
 
