@@ -1,6 +1,6 @@
 // app/(tabs)/stats.tsx
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
   View,
   Text,
@@ -19,6 +19,7 @@ import { createReusableHeaderStyles } from "../../styles/ReusableHeaderStyles";
 import { createStatsStyles } from "../../styles/StatsStyles";
 import BottomBar from "../../components/BottomBar";
 import AgentChat from "../../components/AgentChat";
+import { useNotify } from "../../hooks/use-notify";
 
 import {
   StatsService,
@@ -97,6 +98,24 @@ const StatsScreen: React.FC = () => {
   const styles = createStatsStyles(theme);
 
 
+  const loadEverything = useCallback(async () => {
+    if (!user) return;
+
+    try {
+      const [streaks, tasks] = await Promise.all([
+        StatsService.completedStreaks(),
+        StatsService.completedTasks(),
+      ]);
+
+      setCompletedStreaks(streaks);
+      setCompletedTasks(tasks);
+    } catch (err) {
+      console.error("Stats load error:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
+
   useEffect(() => {
     if (initializing) return;
 
@@ -105,31 +124,10 @@ const StatsScreen: React.FC = () => {
       return;
     }
 
-    let cancelled = false;
-    const loadEverything = async () => {
-      try {
-        const [streaks, tasks] = await Promise.all([
-          StatsService.completedStreaks(),
-          StatsService.completedTasks(),
-        ]);
-
-        if (cancelled) return;
-
-        setCompletedStreaks(streaks);
-        setCompletedTasks(tasks);
-      } catch (err) {
-        console.error("Stats load error:", err);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
-
     loadEverything();
+  }, [user, initializing, loadEverything]);
 
-    return () => {
-      cancelled = true;
-    };
-  }, [user, initializing]);
+  useNotify(["completed_tasks", "completed_streaks"], loadEverything);
 
   if (!user || loading) {
     return (
