@@ -26,30 +26,17 @@
 </p>
 
 
+Ledger (previously named MyProgressManager) is an app that helps you manage your tasks, streaks, and progress statistics.
 
-Ledger (previously named MyProgressManager) is a app that manages 
+The app itself primarily exists as a wrapper for an agentic system that I created.
 
+I built this agent without any orchestration frameworks or SDKs, and defined all of its functionality myself.
 
-The app itself primarily exists as a wrapper for a agentic system that I created. 
+The agentic system is multi-tiered, and the agent is allowed to control itself: it chooses which tools to call and which tier to hand work off to.
 
-I created this agent with no orchestration frameworks and no SDKs and defined all functionalities myself
+I also optimized the system for token consumption. It uses ephemeral storage alongside long-term storage, so only the context the agent actually needs is loaded into a given request.
 
-
-This agentic system is multi - teared and the agent is allowed to control itself in that it can select a and choose
-
-
-This system that I created optimized token consumption.
-
-I implement things such as empheral storage along with long terms storage and 
-
-
-
-
-
-
-
-
-The most important part of this project is the agent and I have left way more resources at [here](Backend/agent/README.md)
+The most important part of this project is the agent, and I have left far more detail about it [here](Backend/agent/README.md).
 
 
 
@@ -73,36 +60,9 @@ https://github.com/user-attachments/assets/969d04d9-ff20-4978-814d-cb497c4e4323
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ### Agent Setup
 
 https://github.com/user-attachments/assets/33861736-22db-4dc4-a886-c70653b66b4e
-
-
-
-
-
-
-
-
-
-
-
 
 
 
