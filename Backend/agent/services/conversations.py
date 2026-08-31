@@ -6,9 +6,13 @@ import threading
 
 class Conversation:
     """This function tracks the converstion."""
+
+   
+
     def __init__(self, id = uuid4()):
         self.conversation_id = id
-        self.timer = self.set_timer()
+        self.timer = self.set_timer() 
+        default_conversation = uuid4()
 
 
 
