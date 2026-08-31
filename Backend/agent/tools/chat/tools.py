@@ -521,40 +521,32 @@ def wakeup_orchestrator():
 
 
 
-def call_function(function_name: str, uuid, **kargs):
-    functions = {
-        "get_tasks_analytics" : tasks_analytics,
-        "get_streaks_analytics" : streaks_analytics,
-        "fetch_streaks" : fecth_streaks, 
-        "create_streak" : create_streak,
-        "update_streak" : update_streak, 
-        "delete_streak":  delete_streak,
-        "tap_streak" : tap_streak,
-        "expire_streak" : expire_streak, 
-        "pause_streak ": pause_streak,
-        "complete_streak" : complete_streak,
-        "fetch_tasks" :  fecth_tasks, 
-        "create_task" : create_task,
-        "update_task" : update_task,
-        "delete_task" : delete_task,
-        "complete_task" : complete_task,
-        "undo_complete_task" : undo_complete_task,
-        "reorder_tasks" : reorder_tasks,
-        "ask_user" : ask_user ,
-        "wakeup_orchestrator" : wakeup_orchestrator
-    }
+
+TOOLS = {
+    "get_tasks_analytics": {"function": tasks_analytics,"user_id": True},
+    "get_streaks_analytics": {"function": streaks_analytics,"user_id": True},
+    "fetch_streaks": {"function": fecth_streaks,"user_id": True},
+    "create_streak": {  "function": create_streak,"user_id": True},
+    "update_streak": { "function": update_streak,"user_id": True},
+    "delete_streak": {"function": delete_streak,"user_id": True},
+    "tap_streak": {"function": tap_streak,"user_id": True},
+    "expire_streak": { "function": expire_streak,"user_id": True},
+    "pause_streak": { "function": pause_streak,"user_id": True},
+    "complete_streak": { "function": complete_streak,"user_id": True},   
+     "fetch_tasks": {"function": fecth_tasks,"user_id": True},
+    "create_task": {"function": create_task,"user_id": True},
+    "update_task": {"function": update_task,"user_id": True},
+    "delete_task": { "function": delete_task,"user_id": True },
+    "complete_task": {"function": complete_task,"user_id": True},
+    "undo_complete_task": {"function": undo_complete_task,"user_id": True},
+    "reorder_tasks": {"function": reorder_tasks,"user_id": True},
+    "ask_user": { "function": ask_user,"user_id": False},
+    "wakeup_orchestrator": {"function": wakeup_orchestrator,"user_id": False}
+}
 
 
-    function = functions[function_name]
-
-    variables = function.__code__.co_varnames
-
-    if "user_id" in variables:
-        return function (uuid, **kargs)
-        
 
 
-    return function(**kargs) 
 
 
 
