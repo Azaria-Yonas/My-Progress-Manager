@@ -6,6 +6,59 @@ from agent.memory import Memory
 from agent.models.openai_connector import OpenAIModel 
 
 from clients.psycopg_connect import psycopg_connect
+from user import User
+
+
+
+
+
+     
+
+
+
+
+class Agent:
+    
+    def __init__(self, user, tool_registry = {},  model = OpenAIModel(), memory =  Memory() ):
+        self.model = model
+        self.memory = memory
+        self.tool_registry = tool_registry
+        self.user_info = user
+    
+
+
+    def ask(self, message):
+        return self.model.ask(self.memory, message)
+    
+
+    def parse(self):
+        return self.model.parse()
+
+
+    def build_message(self, dump_all = False):
+        """This function constructs the agents prompt."""
+
+        if dump_all is True:
+            return self.memory.dump()
+
+        return 
+    
+
+
+    def execute(self, uuid, function_name, **kargs):
+        """This function executes the agents tools"""
+        function = self.tool_registry[function_name]
+
+        if self.tool_registry["uuid"]:
+            return function (uuid, **kargs)
+
+        return function(**kargs) 
+
+
+
+
+
+
 
 
 
@@ -76,8 +129,6 @@ def load_user_data(uuid):
     except:
         return {"User Data" : "No User Data"}
 
-     
-    
 
 
 
@@ -86,61 +137,7 @@ def load_user_data(uuid):
 
 
 
-
-
-
-class Agent:
-    
-    def __init__(self, model = OpenAIModel(), memory =  Memory()):
-        self.model = model
-        self.memory = memory
-
-
-
-    def build_message(self, dump_all = False):
-        """This function construct a message to send.
-
-        Return dict()
-
-        Example:
-
-            message = {
-                "Bootstrap" : {},
-                "Chat History": {},
-                ...
-
-            
-            }
-        
-        
-        """
-
-        if dump_all is True:
-            return self.memory.dump()
-
-        return 
-    
-
-
-
-
-
-    # def ask(self, message):
-    #     if self.model:
-    #         return self.model.ask(message) 
-    #     return "Error"
-
-
-
-
-
-
-
-
-
-
-
-def create_agent(agent: Agent, memory: Memory, model: OpenAIModel, tools = None, bootstrap = None, user_data = None):
+def create_agent(agent: Agent, memory: Memory, model: OpenAIModel, user: User, tools = None, bootstrap = None, user_data = None):
 
     if tools is not None: 
 
@@ -153,11 +150,13 @@ def create_agent(agent: Agent, memory: Memory, model: OpenAIModel, tools = None,
         memory.user_data = user_data
 
 
-    model = OpenAIModel("gpt-5-nano")
+    model = OpenAIModel()
+    user = User()
     
 
     agent.memory = memory
     agent.model = model
+    agent.user_info = 
 
     return agent
 

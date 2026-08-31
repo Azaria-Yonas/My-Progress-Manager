@@ -14,6 +14,7 @@ class OpenAIModel:
         self.model = model
         self.reasoning = reasoning
         self.output = max_output_tokens
+        self.last_response = None
 
     def ask(self, memory, message):  
 
@@ -53,8 +54,66 @@ class OpenAIModel:
 
         )
 
+        self.last_response = response
+
 
         return response   
+
+
+
+
+    def parse(self, responses=None):
+        if responses is None:
+            if self.last_response is None:
+                return
+            responses = self.last_response
+
+
+        for response in responses.output:
+            if response.type == "function_call":
+                func_name = response.name
+                attributes = json.loads(response.arguments)
+
+
+    def advanced_parse(self, responses=None):
+        if responses is None:
+            if self.last_response is None:
+                return
+            responses = self.last_response
+
+            for response in responses:
+                pass 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
