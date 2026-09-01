@@ -1,20 +1,20 @@
 from openai import OpenAI
 from config import OPENAI_KEY
 from routes.agent import get_agent
+from collections import deque
 import json
 
 import requests
 
 
 
-
 class OpenAIModel:
-    def __init__(self, model = "gpt-5-nano", max_output_tokens = 500, reasoning = None):
+    def __init__(self, model = "gpt-5-nano", max_output_tokens = 500, reasoning = None, responses = deque()):
         self.client = OpenAI(api_key=OPENAI_KEY)
         self.model = model
         self.reasoning = reasoning
         self.output = max_output_tokens
-        self.last_response = None
+        self.responses = responses
 
     def ask(self, memory, message):  
 
@@ -54,35 +54,33 @@ class OpenAIModel:
 
         )
 
-        self.last_response = response
+        self.responses.extend(response)
 
-
-        return response   
 
 
 
 
     def parse(self, responses=None):
         if responses is None:
-            if self.last_response is None:
+            if self.responses.count == 0:
                 return
-            responses = self.last_response
+            responses = self.responses
 
 
-        for response in responses.output:
+        for response in list(responses):
             if response.type == "function_call":
                 func_name = response.name
                 attributes = json.loads(response.arguments)
 
 
-    def advanced_parse(self, responses=None):
-        if responses is None:
-            if self.last_response is None:
-                return
-            responses = self.last_response
+    # def advanced_parse(self, responses=None):
+    #     if responses is None:
+    #         if self.last_response is None:
+    #             return
+    #         responses = self.last_response
 
-            for response in responses:
-                pass 
+    #         for response in responses:
+    #             pass 
 
 
 
