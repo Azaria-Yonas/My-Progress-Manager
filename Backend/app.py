@@ -11,12 +11,11 @@ from routes.agent import configure_agent, get_agent, update_agent
 from error import error_message
 from flask_sock import Sock
 from agent.message_queue import MessageQueue
-from agent.loop import chat_loop
 from agent.history import initialize_db, create_database
 from clients.supabase_client import user_channel
 import asyncio
 import json
-
+from threading import Thread
 
 
  
@@ -292,7 +291,6 @@ def magent(ws):
         
         mq.add_message(data["message"])
 
-        chat_loop(id, mq, ws)
 
 
 
