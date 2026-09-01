@@ -147,7 +147,9 @@ class ChatHistoryManager:
 
 
     def browse_memory(self):
-        """This function allows the agent to look at history that isn't active but could be used for context"""
+        """This function allows the agent to look at history that isn't active but could be used for 
+        context. This method is helpful when the converesation is refreshed on the backend but not on the 
+        frontend."""
 
 
 

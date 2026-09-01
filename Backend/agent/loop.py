@@ -2,6 +2,10 @@ from agent.models.openai_connector import OpenAIModel
 from agent.memory import Memory
 from agent.agent import Agent, load_user_data, load_tools, load_bootstrap, create_agent
 from agent.message_queue import MessageQueue
+from history import ChatHistoryManager, AgentHistoryManager
+from services.conversations import Conversation
+from user import User
+from tools.chat.tools import TOOLS
 import json
 
 
@@ -15,14 +19,20 @@ def chat_agent(uuid, message_queue: MessageQueue, ws = None):
     bootstrap = load_bootstrap("agent/agent_bootstrap/chat/")
     user_data = load_user_data(uuid)
 
+    conversation_manager = Conversation()
+
+    chat_history = ChatHistoryManager(conversation_manager)
+    agent_history = AgentHistoryManager()
 
 
-    agent0 = Agent()
-    memo = Memory(tools=tools, bootstrap=bootstrap, user_data=user_data, history=[])
+
+    memo = Memory(tools=tools, bootstrap=bootstrap, user_data=user_data, chat_history=chat_history, agent_history=agent_history)
     mod = OpenAIModel()
+    user = User(uuid)
+
+    agent1 = Agent(user=user,model=mod, memory=memo, tool_registry=TOOLS)
 
 
-    agent = create_agent(agent0, memo, mod)
 
     message = message_queue.get_messages()
 
@@ -30,28 +40,13 @@ def chat_agent(uuid, message_queue: MessageQueue, ws = None):
 
         while True:
 
-            memory_dump = agent.build_message(dump_all=True)
+            memory_dump = agent1.build_message(dump_all=True)
 
             
-            response = agent.ask(memory_dump, message)
+            agent1.ask(message=message)
 
 
-            for resp in response.output:
-                if resp.type == "function_call":
-                    func_name = resp.name
-                    attributes = json.loads(resp.arguments)
-                    results = agent.execute(func_name, uuid, **attributes)
-                    agent.memory.chat_history.append({
-                        "Tool Call": func_name,
-                        "Arguments": attributes,
-                        "Result": results
-                    })
-                    
-                if resp.type == "message":
-                    print(response.output_text)
-                    if ws is not None:
-                        ws.send(response.output_text)
-                    return
+            
 
     loop()
 
@@ -80,7 +75,7 @@ if __name__ == "__main__":
     mq.add_message("Hey how I have been doing these past few days.")
 
 
-    chat_loop("3f027e9f-2437-4f5e-90ed-c6423ffb4186", mq)
+    
 
 
 

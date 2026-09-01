@@ -19,11 +19,13 @@ from user import User
 
 class Agent:
     
-    def __init__(self, user, tool_registry = {},  model = OpenAIModel(), memory =  Memory() ):
+    def __init__(self, user, model: OpenAIModel, memory:  Memory, tool_registry = {} ):
         self.model = model
         self.memory = memory
         self.tool_registry = tool_registry
         self.user_info = user
+
+
     
 
 
@@ -31,8 +33,8 @@ class Agent:
         return self.model.ask(self.memory, message)
     
 
-    def parse(self):
-        return self.model.parse()
+    def parse(self, response = None):
+        return self.model.parse(responses=response)
 
 
     def build_message(self, dump_all = False):
@@ -45,7 +47,7 @@ class Agent:
     
 
 
-    def execute(self, uuid, function_name, **kargs):
+    def call_function(self, uuid, function_name, **kargs):
         """This function executes the agents tools"""
         function = self.tool_registry[function_name]
 
@@ -54,6 +56,12 @@ class Agent:
 
         return function(**kargs) 
 
+    def execute(self):
+        """This funciton handles the parsed """
+
+
+    def history(self):
+        """Adds the output of the agentic calls either into the chat history or the agent history"""
 
 
 
@@ -64,29 +72,30 @@ class Agent:
 
 
 
+chat = {"AGENT.md": None, "APP.md": None, "DETAILS.md": None, 
+            "IMPORTANT.md":None, "PERSONALITY.md": None, "SCOPE.md": None, 
+            "TOOLS.md": None, "USER.md": None}
 
 
 
-def load_bootstrap(path):
-    """This funciton recursively reads parses agent bootstap directories/files"""
+def load_bootstrap(path, template):
     if not isinstance(path, Path):
         path = Path(path)
 
+    assert path.is_dir()
 
-    bootstrap = {}
+    for i in template:
+        if file := path / i: 
+            with open(file, 'r') as f:
+                template[i] = f.read()
 
-    if Path.is_file(path) and path.suffix == ".md":
-        with open(path, 'r') as f:
-            bootstrap[path.name] = f.read() 
+    
 
-    if Path.is_dir(path):
-        files = sorted(path.rglob("*.md", case_sensitive=False))
-        for i in files:
-            with open(i, "r") as f:
-                bootstrap[i.name] = f.read() 
 
-    return bootstrap
 
+    
+
+    
     
 
 def load_tools (path):
@@ -156,7 +165,7 @@ def create_agent(agent: Agent, memory: Memory, model: OpenAIModel, user: User, t
 
     agent.memory = memory
     agent.model = model
-    agent.user_info = 
+    agent.user_info = user
 
     return agent
 
