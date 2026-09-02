@@ -22,6 +22,12 @@ SUPABASE_ADMIN_KEY = os.getenv("SERVICE_ROLE_KEY")
 # OpenAI API Config
 OPENAI_KEY = os.getenv("CHAT_GPT_API_KEY")
 
+# Anthropic API Config
+ANTHROPIC_KEY = os.getenv("ANTHROPIC_API_KEY") 
+
+# Gemini API Config
+GEMINI_KEY = os.getenv("GEMINI_API_KEY")
+
 # Tavily Key
 TAVILY_KEY = os.getenv("TAVILY_KEY")
 
