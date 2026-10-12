@@ -72,22 +72,23 @@ class Agent:
 
 
 
-chat = {"AGENT.md": None, "APP.md": None, "DETAILS.md": None, 
+CHAT = {"AGENT.md": None, "APP.md": None, "DETAILS.md": None, 
             "IMPORTANT.md":None, "PERSONALITY.md": None, "SCOPE.md": None, 
             "TOOLS.md": None, "USER.md": None}
 
 
 
-def load_bootstrap(path, template):
+def load_bootstrap(path, labels):
+    """This function appends every"""
     if not isinstance(path, Path):
         path = Path(path)
 
     assert path.is_dir()
 
-    for i in template:
+    for i in labels:
         if file := path / i: 
             with open(file, 'r') as f:
-                template[i] = f.read()
+                labels[i] = f.read()
 
     
 
