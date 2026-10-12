@@ -1,5 +1,5 @@
 from pathlib import Path
-from history import ChatHistory, AgentHistory
+from history import ChatHistoryManager, AgentHistoryManager
 import tiktoken
 import json
 
@@ -8,8 +8,8 @@ import json
 class Memory:
     """The memory class is every piece of data that is avai"""
     def __init__(self, 
-        agent_history: AgentHistory, 
-        chat_history: ChatHistory,
+        agent_history: AgentHistoryManager, 
+        chat_history: ChatHistoryManager,
         bootstrap = {}, 
         tools = {}, 
         user_data= {},
@@ -49,7 +49,7 @@ class Memory:
             dump["Bootstrap"] = self.bootstrap
 
         if include_chat_history == True: 
-            dump["Chat History"] = self.chat_history
+            dump["Chat History"] = self.chat_history.history()
 
         if include_tools == True:
 
