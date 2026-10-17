@@ -514,8 +514,8 @@ def ask_user(question: str, wb, queue):
 
 
 
-def wakeup_orchestrator():
-    return "Orchestrator Not Available "
+def increase_thinking_ability():
+    return "Not Available at the moment"
 
 
 
@@ -541,7 +541,7 @@ TOOLS = {
     "undo_complete_task": {"function": undo_complete_task,"user_id": True},
     "reorder_tasks": {"function": reorder_tasks,"user_id": True},
     "ask_user": { "function": ask_user,"user_id": False},
-    "wakeup_orchestrator": {"function": wakeup_orchestrator,"user_id": False}
+    "wakeup_orchestrator": {"function": increase_thinking_ability,"user_id": False}
 }
 
 

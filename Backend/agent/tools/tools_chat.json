@@ -18,8 +18,8 @@
     },
     {
         "type": "function",
-        "name": "wakeup_orchestrator",
-        "description": "Handoff task to Orchestrator",
+        "name": "increase_thinking_ability",
+        "description": "Increase your thinking ability when faced with a complex task",
         "parameters": {
             "type": "object", 
             "properties": {},
