@@ -1,11 +1,9 @@
-from agent.services.conversations import Conversation
 from agent.bootstrap.bootstrap import Bootstrap
 from agent.models.openai_connector import OpenAIModel
 from agent.tools.tools import load_tools
 from agent.agent import Agent
 from agent.history import AgentHistoryManager, ChatHistoryManager
 from agent.memory import Memory
-from agent.message_queue import MessageQueue
 from agent.user import User
 
 
@@ -19,12 +17,11 @@ from agent.user import User
 
 
 
-def create_agent(user_id):
+def create_agent(user_id, conversation_manager):
 
     user_data = User(uuid=user_id)
     model = OpenAIModel()
 
-    conversation_manager = Conversation()
 
     chat_history = ChatHistoryManager(user_data.user_id, conversation_manager)
     agent_history = AgentHistoryManager()
