@@ -10,13 +10,13 @@ from routes.stats import tasks_analytics, streaks_analytics
 from routes.agent import configure_agent, get_agent, update_agent
 from error import error_message
 from flask_sock import Sock
-from agent.message_queue import MessageQueue
+from Backend.message_queue import MessageQueue
 from agent.history import initialize_db, create_database
+from agent.loop import agentic_loop
 from clients.supabase_client import user_channel
 import asyncio
 import json
-from threading import Thread
-
+from services.conversations import Conversation
 
  
 app = Flask(__name__)
@@ -278,8 +278,10 @@ def magent(ws):
         ws.close()
         return
 
-
+    conversation_manager = Conversation()
     mq = MessageQueue(5) 
+
+    agentic_loop(id, conversation_manager, mq)
 
 
     while True:
