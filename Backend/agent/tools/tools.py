@@ -558,7 +558,7 @@ TOOLS = {
 
 
 
-def load_tools (path):
+def load_tools (path = "agent/tools/tools_chat.json"):
     """This function parses the json file that stores the tools along 
     with the descriptions and converts it into a python dictionary """
     if not isinstance(path, Path): 
@@ -571,6 +571,13 @@ def load_tools (path):
 
 
 
+
+
+
+
+
+if __name__ == "__main__":
+    print(load_tools())
 
 
 
