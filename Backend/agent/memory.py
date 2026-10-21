@@ -1,5 +1,7 @@
 from pathlib import Path
 from history import ChatHistoryManager, AgentHistoryManager
+from bootstrap.bootstrap import Bootstrap
+from user import User
 import tiktoken
 import json
 
@@ -10,9 +12,9 @@ class Memory:
     def __init__(self, 
         agent_history: AgentHistoryManager, 
         chat_history: ChatHistoryManager,
-        bootstrap = {}, 
+        bootstrap = Bootstrap, 
         tools = {}, 
-        user_data= {},
+        user_data= User,
         **kwargs
     ):
         self.bootstrap = bootstrap
