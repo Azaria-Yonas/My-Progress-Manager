@@ -1,6 +1,7 @@
 import psycopg as pg
 from psycopg import sql 
 from psycopg.types.json import Jsonb
+from pathlib import Path
 from clients.psycopg_connect import psycopg_connect
 import json
 
@@ -549,15 +550,24 @@ TOOLS = {
 
 
 
+# def get_tools(path):
+#     with open(path, "r") as f:
+#         return json.load(f)
 
 
 
 
 
-def get_tools(path):
-    with open(path, "r") as f:
-        return json.load(f)
-
+def load_tools (path):
+    """This function parses the json file that stores the tools along 
+    with the descriptions and converts it into a python dictionary """
+    if not isinstance(path, Path): 
+        path = Path(path)
+    if Path.is_file(path) and path.suffix == ".json":  
+        with open(path, "r") as f:
+            return json.load(f)
+    else:
+        return None
 
 
 
