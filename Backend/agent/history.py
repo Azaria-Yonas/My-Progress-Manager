@@ -3,7 +3,7 @@ from sqlalchemy import String, text, Uuid, Select, ForeignKey, true
 from sqlalchemy.dialects.sqlite import DATETIME, JSON
 from sqlalchemy.orm import DeclarativeBase, declarative_base, Mapped, mapped_column
 from sqlalchemy.orm import Session, relationship
-from services.conversations import Conversation
+from Backend.services.conversations import Conversation
 
 from uuid import uuid4, UUID
 from datetime import datetime
