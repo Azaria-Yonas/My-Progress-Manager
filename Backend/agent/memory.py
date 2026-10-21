@@ -12,9 +12,9 @@ class Memory:
     def __init__(self, 
         agent_history: AgentHistoryManager, 
         chat_history: ChatHistoryManager,
-        bootstrap = Bootstrap, 
+        bootstrap: Bootstrap,
+        user_data: User, 
         tools = {}, 
-        user_data= User,
         **kwargs
     ):
         self.bootstrap = bootstrap
