@@ -281,7 +281,7 @@ def magent(ws):
     conversation_manager = Conversation()
     mq = MessageQueue(5) 
 
-    agentic_loop(id, conversation_manager, mq)
+    agentic_loop(id, conversation_manager, mq, ws)
 
 
     while True:
