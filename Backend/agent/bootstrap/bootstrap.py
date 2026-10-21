@@ -32,12 +32,14 @@ class Bootstrap():
         return self.data
 
 
-boot = Bootstrap()
-
-boot.load()
 
 
-print(boot.data)
+
+if __name__ == "__main__":
+
+    boot = Bootstrap()
+    boot.load()
+    print(boot.data)
 
 
 
