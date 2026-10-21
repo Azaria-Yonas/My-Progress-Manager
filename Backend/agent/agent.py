@@ -5,16 +5,15 @@ import json
 from agent.memory import Memory
 from agent.models.openai_connector import OpenAIModel 
 
-from clients.psycopg_connect import psycopg_connect
 from user import User
 
 
 
 
 
-     
 
 
+    
 
 
 class Agent:
@@ -25,8 +24,6 @@ class Agent:
         self.tool_registry = tool_registry
         self.user_info = user
 
-
-    
 
 
     def ask(self, message):
@@ -45,7 +42,6 @@ class Agent:
 
         return 
     
-
 
     def call_function(self, uuid, function_name, **kargs):
         """This function executes the agents tools"""
@@ -72,109 +68,12 @@ class Agent:
 
 
 
-CHAT = {"AGENT.md": None, "APP.md": None, "DETAILS.md": None, 
-            "IMPORTANT.md":None, "PERSONALITY.md": None, "SCOPE.md": None, 
-            "TOOLS.md": None, "USER.md": None}
-
-
-
-def load_bootstrap(path, labels):
-    """This function appends every"""
-    if not isinstance(path, Path):
-        path = Path(path)
-
-    assert path.is_dir()
-
-    for i in labels:
-        if file := path / i: 
-            with open(file, 'r') as f:
-                labels[i] = f.read()
-
-    
-
-
-
-    
-
-    
-    
-
-def load_tools (path):
-    """This function parses a json file that stores the tools
-     and converts it into a python dictionary """
-    if not isinstance(path, Path): 
-        path = Path(path)
-    if Path.is_file(path) and path.suffix == ".json":  
-        with open(path, "r") as f:
-            return json.load(f)
-    else:
-        return None
-
-
-
-
-    
-def load_user_data(uuid):
-
-    try:
-        with psycopg_connect() as conn: 
-            with conn.cursor() as curr:
-                curr.execute( 
-                    "SELECT agent_name, user_data FROM public.agent WHERE user_id = %s", 
-                    (uuid,)
-                ) 
-
-                row = curr.fetchone()
-                if row is None:
-                    return {"User Data" : "No User Data"}
-
-                return {"User Data" :  { 
-                    "Agent's User Given Name" :row[0],
-                    "User Prefrences" : row[1]
-                    }
-                }
-
-
-            
-    except:
-        return {"User Data" : "No User Data"}
 
 
 
 
 
 
-
-
-
-def create_agent(agent: Agent, memory: Memory, model: OpenAIModel, user: User, tools = None, bootstrap = None, user_data = None):
-
-    if tools is not None: 
-
-        memory.tools = tools
-
-    if bootstrap is not None:   
-        memory.bootstrap = bootstrap
-
-    if user_data is not None:
-        memory.user_data = user_data
-
-
-    model = OpenAIModel()
-    user = User()
-    
-
-    agent.memory = memory
-    agent.model = model
-    agent.user_info = user
-
-    return agent
-
-
-
-
-
-    
 
 
 
