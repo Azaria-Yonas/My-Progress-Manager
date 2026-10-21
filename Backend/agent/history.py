@@ -37,6 +37,7 @@ class ChatHistory(BASE):
 
     __tablename__ = "chat_history"
 
+    user_id: Mapped[UUID] = mapped_column(Uuid, nullable=False)
     conversation_id: Mapped[UUID] = mapped_column(Uuid, nullable=False)
     message_id : Mapped[UUID] =  mapped_column(Uuid, primary_key=True, default=uuid4)
     user : Mapped[str] = mapped_column(String(10))
@@ -58,7 +59,7 @@ class AgentHistory(BASE):
     requests that are going to the LLM"""
 
     __tablename__ = "agent_history"
-
+    user_id: Mapped[UUID] = mapped_column(Uuid, nullable=False)
     id : Mapped[UUID] =  mapped_column(Uuid, primary_key=True, default=uuid4)
     date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now(), index=True)
     output: Mapped[dict] = mapped_column(JSON)
@@ -80,7 +81,8 @@ class AgentHistory(BASE):
 
 class ChatHistoryManager:
     chat_history = ChatHistory
-    def __init__ (self, conversation: Conversation):
+    def __init__ (self, user_id, conversation: Conversation):
+        self.user_id = user_id
         self.conversation_manager = conversation
         self.previous_id = None
 
@@ -121,9 +123,9 @@ class ChatHistoryManager:
 
         with Session(ENGINE) as sesssion:
             if conversation_id is None:
-                sesssion.execute(text("UPDATE chat_history SET status = 'inactive' WHERE status = 'active'"))
+                sesssion.execute(text("UPDATE chat_history SET status = 'inactive' WHERE status = 'active' and user_id=:user_id"), {"user_id": self.user_id})
             else:
-                sesssion.execute( text("UPDATE chat_history SET status = 'inactive' WHERE conversation_id =: conversation_id"), {"conversation_id" : conversation_id})
+                sesssion.execute( text("UPDATE chat_history SET status = 'inactive' WHERE conversation_id =: conversation_id and user_id=:user_id" ), {"conversation_id" : conversation_id, "user_id": self.user_id})
         
             sesssion.commit()
 
@@ -134,7 +136,7 @@ class ChatHistoryManager:
         the active conversation in the database. If so it returns the active chat otherwise the active chat is deactivated 
         and a new active chat is started"""
         with Session(ENGINE) as sessions:
-            results = sessions.execute(text("SELECT conversation_id, user, message FROM chat_history WHERE status = 'active'"))
+            results = sessions.execute(text("SELECT conversation_id, user, message FROM chat_history WHERE status = 'active' and user_id=:user_id"), {"user_id": self.user_id})
             output =  results.one_or_none()
             if output is not None:
                 if not (output[0][0] == self.get_id()):
