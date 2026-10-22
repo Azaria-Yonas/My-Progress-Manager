@@ -30,11 +30,16 @@ def create_agent(user_id, conversation_manager):
 
     tools = load_tools()
     
-    memory = Memory(agent_history=agent_history, chat_history=chat_history, bootstrap=instructions, user_data=user_data)
+    memory = Memory(agent_history=agent_history, chat_history=chat_history, bootstrap=instructions, user_data=user_data, tools=tools)
     
 
 
-    agent = Agent(user= user_data, model= model, memory=memory)
+    agent = Agent(user= user_data, model= model, memory=memory, tool_registry=tools)
+
+
+    return agent
+
+
 
 
 
