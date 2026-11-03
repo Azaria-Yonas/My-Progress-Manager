@@ -1,6 +1,7 @@
 import psycopg as pg
 from psycopg import sql 
 from psycopg.types.json import Jsonb
+from pathlib import Path
 from clients.psycopg_connect import psycopg_connect
 import json
 
@@ -514,8 +515,8 @@ def ask_user(question: str, wb, queue):
 
 
 
-def wakeup_orchestrator():
-    return "Orchestrator Not Available "
+def increase_thinking_ability():
+    return "Not Available at the moment"
 
 
 
@@ -541,7 +542,7 @@ TOOLS = {
     "undo_complete_task": {"function": undo_complete_task,"user_id": True},
     "reorder_tasks": {"function": reorder_tasks,"user_id": True},
     "ask_user": { "function": ask_user,"user_id": False},
-    "wakeup_orchestrator": {"function": wakeup_orchestrator,"user_id": False}
+    "wakeup_orchestrator": {"function": increase_thinking_ability,"user_id": False}
 }
 
 
@@ -549,18 +550,34 @@ TOOLS = {
 
 
 
+# def get_tools(path):
+#     with open(path, "r") as f:
+#         return json.load(f)
 
 
 
 
 
-def get_tools(path):
-    with open(path, "r") as f:
-        return json.load(f)
+def load_tools (path = "agent/tools/tools_chat.json"):
+    """This function parses the json file that stores the tools along 
+    with the descriptions and converts it into a python dictionary """
+    if not isinstance(path, Path): 
+        path = Path(path)
+    if Path.is_file(path) and path.suffix == ".json":  
+        with open(path, "r") as f:
+            return json.load(f)
+    else:
+        return None
 
 
 
 
+
+
+
+
+if __name__ == "__main__":
+    print(load_tools())
 
 
 
