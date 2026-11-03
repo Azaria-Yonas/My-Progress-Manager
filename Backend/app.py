@@ -17,6 +17,7 @@ from clients.supabase_client import user_channel
 import asyncio
 import json
 from services.conversations import Conversation
+from threading import Thread
 
  
 app = Flask(__name__)
@@ -269,6 +270,10 @@ def uagent():
         return error_message(error_response(e)) 
 
 
+
+
+
+
 @sock.route("/agent/message")                                   # Message Agent
 def magent(ws):
     try:
@@ -281,7 +286,14 @@ def magent(ws):
     conversation_manager = Conversation()
     mq = MessageQueue(5) 
 
-    agentic_loop(id, conversation_manager, mq, ws, 10)
+    agent_thread = Thread(
+        target=agentic_loop,
+        args=(id, conversation_manager, mq, ws, 10), 
+        daemon=True)
+
+    
+    agent_thread.start()
+
 
 
     while True:
